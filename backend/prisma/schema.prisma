@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Habit {
+  id        Int        @id @default(autoincrement())
+  title     String
+  categoryId  Int
+  createdAt DateTime   @default(now())
+
+  category  Category   @relation(fields: [categoryId], references: [id])
+  logs      HabitLog[]
+}
+
+model HabitLog {
+  id      Int      @id @default(autoincrement())
+  habitId Int
+  date    String
+
+  habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
+}
+
+model Category {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  icon  String
+
+  habits Habit[]
+}

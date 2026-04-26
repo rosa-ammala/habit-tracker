@@ -43,6 +43,7 @@ The project also emphasizes clean component structure, predictable state managem
 - **Express.js** – Backend framework for API handling  
 - **Prisma** – ORM for database access  
 - **MySQL** – Relational database for storing habits, logs and categories
+- **ChatGPT** - AI-assisted support for brainstorming, debugging, code generation, refactoring, and documentation. All code was reviewed, tested, and finalized by the author.
 
 ## 📖 Sources
 

@@ -1,4 +1,9 @@
 import { prisma } from "../config/prisma";
+import {
+  isFutureDateInTimezone,
+  isValidDateOnlyString,
+  parseDateOnlyAsUtcDate,
+} from "../utils/date";
 
 type HabitWithLogs = {
   logs: { date: Date }[];
@@ -59,25 +64,7 @@ export async function createHabit(data: {
 }
 
 export async function getHabitById(id: number) {
-  const habit = await prisma.habit.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      category: true,
-      logs: {
-        orderBy: {
-          date: "asc",
-        },
-      },
-    },
-  });
-
-  if (!habit) {
-    throw new Error("HABIT_NOT_FOUND");
-  }
-
-  return addHabitStats(habit);
+  return getHabitResponseById(id);
 }
 
 export async function updateHabit(
@@ -144,4 +131,93 @@ export async function deleteHabit(id: number) {
       id,
     },
   });
+}
+
+// HELPER
+async function getHabitResponseById(id: number) {
+  const habit = await prisma.habit.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      category: true,
+      logs: {
+        orderBy: {
+          date: "asc",
+        },
+      },
+    },
+  });
+
+  if (!habit) {
+    throw new Error("HABIT_NOT_FOUND");
+  }
+
+  return addHabitStats(habit);
+}
+
+// LOGS
+export async function addHabitLog(
+  habitId: number,
+  data: {
+    date: string;
+    timezone: string;
+  }
+) {
+  if (!isValidDateOnlyString(data.date)) {
+    throw new Error("INVALID_DATE");
+  }
+
+  if (isFutureDateInTimezone(data.date, data.timezone)) {
+    throw new Error("FUTURE_DATE_NOT_ALLOWED");
+  }
+
+  const habit = await prisma.habit.findUnique({
+    where: {
+      id: habitId,
+    },
+  });
+
+  if (!habit) {
+    throw new Error("HABIT_NOT_FOUND");
+  }
+
+  await prisma.habitLog.create({
+    data: {
+      habitId,
+      date: parseDateOnlyAsUtcDate(data.date),
+    },
+  });
+
+  return getHabitResponseById(habitId);
+}
+
+export async function deleteHabitLog(
+  habitId: number,
+  date: string
+) {
+  if (!isValidDateOnlyString(date)) {
+    throw new Error("INVALID_DATE");
+  }
+
+  const habit = await prisma.habit.findUnique({
+    where: {
+      id: habitId,
+    },
+  });
+
+  if (!habit) {
+    throw new Error("HABIT_NOT_FOUND");
+  }
+
+  await prisma.habitLog.delete({
+    where: {
+      habitId_date: {
+        habitId,
+        date: parseDateOnlyAsUtcDate(date),
+      },
+    },
+  });
+
+  return getHabitResponseById(habitId);
 }

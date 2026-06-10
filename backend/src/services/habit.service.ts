@@ -4,20 +4,30 @@ import {
   isValidDateOnlyString,
   parseDateOnlyAsUtcDate,
 } from "../utils/date";
+import { calculateStreaks } from "./streak.service";
+import { getTodayInTimezone } from "../utils/date";
 
 type HabitWithLogs = {
   logs: { date: Date }[];
 };
 
-function addHabitStats<T extends HabitWithLogs>(habit: T) {
+function addHabitStats<T extends HabitWithLogs>(
+  habit: T,
+  timezone = "UTC"
+) {
+  const today = getTodayInTimezone(timezone);
+  const streaks = calculateStreaks(
+    habit.logs.map((log) => log.date),
+    today
+  );
+
   return {
     ...habit,
-    currentStreak: 0,
-    bestStreak: 0,
+    ...streaks,
   };
 }
 
-export async function getHabits() {
+export async function getHabits(timezone = "UTC") {
   const habits = await prisma.habit.findMany({
     include: {
       category: true,
@@ -32,7 +42,7 @@ export async function getHabits() {
     },
   });
 
-  return habits.map(addHabitStats);
+  return habits.map((habit) => addHabitStats(habit, timezone));
 }
 
 export async function createHabit(data: {
@@ -63,8 +73,8 @@ export async function createHabit(data: {
   return addHabitStats(habit);
 }
 
-export async function getHabitById(id: number) {
-  return getHabitResponseById(id);
+export async function getHabitById(id: number, timezone = "UTC") {
+  return getHabitResponseById(id, timezone);
 }
 
 export async function updateHabit(
@@ -134,7 +144,7 @@ export async function deleteHabit(id: number) {
 }
 
 // HELPER
-async function getHabitResponseById(id: number) {
+async function getHabitResponseById(id: number, timezone = "UTC") {
   const habit = await prisma.habit.findUnique({
     where: {
       id,
@@ -153,7 +163,7 @@ async function getHabitResponseById(id: number) {
     throw new Error("HABIT_NOT_FOUND");
   }
 
-  return addHabitStats(habit);
+  return addHabitStats(habit, timezone);
 }
 
 // LOGS
@@ -189,12 +199,13 @@ export async function addHabitLog(
     },
   });
 
-  return getHabitResponseById(habitId);
+  return getHabitResponseById(habitId, data.timezone);
 }
 
 export async function deleteHabitLog(
   habitId: number,
-  date: string
+  date: string,
+  timezone = "UTC"
 ) {
   if (!isValidDateOnlyString(date)) {
     throw new Error("INVALID_DATE");
@@ -219,5 +230,5 @@ export async function deleteHabitLog(
     },
   });
 
-  return getHabitResponseById(habitId);
+  return getHabitResponseById(habitId, timezone);
 }

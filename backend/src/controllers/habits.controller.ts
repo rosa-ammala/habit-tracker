@@ -1,9 +1,13 @@
 import type { Request, Response } from "express";
 import * as habitService from "../services/habit.service";
 
-export async function getHabits(_req: Request, res: Response) {
+export async function getHabits(req: Request, res: Response) {
   try {
-    const habits = await habitService.getHabits();
+    const timezone =
+      typeof req.query.timezone === "string" ? req.query.timezone : "UTC";
+
+    const habits = await habitService.getHabits(timezone);
+
     res.json(habits);
   } catch (error) {
     console.error(error);
@@ -49,7 +53,10 @@ export async function getHabitById(req: Request, res: Response) {
       return res.status(400).json({ message: "Valid habit id is required" });
     }
 
-    const habit = await habitService.getHabitById(id);
+    const timezone =
+      typeof req.query.timezone === "string" ? req.query.timezone : "UTC";
+
+    const habit = await habitService.getHabitById(id, timezone);
 
     res.json(habit);
   } catch (error) {
@@ -188,7 +195,10 @@ export async function deleteHabitLog(req: Request, res: Response) {
       return res.status(400).json({ message: "Valid date is required" });
     }
 
-    const habit = await habitService.deleteHabitLog(id, date);
+    const timezone =
+      typeof req.query.timezone === "string" ? req.query.timezone : "UTC";
+
+    const habit = await habitService.deleteHabitLog(id, date, timezone);
 
     res.json(habit);
   } catch (error) {

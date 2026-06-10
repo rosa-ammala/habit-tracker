@@ -5,9 +5,14 @@ export function isValidDateOnlyString(date: string) {
     return false;
   }
 
-  const parsedDate = new Date(`${date}T00:00:00.000Z`);
+  const [year, month, day] = date.split("-").map(Number);
+  const parsedDate = new Date(Date.UTC(year, month - 1, day));
 
-  return !Number.isNaN(parsedDate.getTime());
+  return (
+    parsedDate.getUTCFullYear() === year &&
+    parsedDate.getUTCMonth() === month - 1 &&
+    parsedDate.getUTCDate() === day
+  );
 }
 
 export function getTodayInTimezone(timezone: string) {

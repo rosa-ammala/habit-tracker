@@ -11,11 +11,16 @@ type HabitWithLogs = {
   logs: { date: Date }[];
 };
 
-function addHabitStats<T extends HabitWithLogs>(
+function toDateOnlyString(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function toHabitResponse<T extends HabitWithLogs>(
   habit: T,
   timezone = "UTC"
 ) {
   const today = getTodayInTimezone(timezone);
+
   const streaks = calculateStreaks(
     habit.logs.map((log) => log.date),
     today
@@ -23,6 +28,10 @@ function addHabitStats<T extends HabitWithLogs>(
 
   return {
     ...habit,
+    logs: habit.logs.map((log) => ({
+      ...log,
+      date: toDateOnlyString(log.date),
+    })),
     ...streaks,
   };
 }
@@ -42,7 +51,7 @@ export async function getHabits(timezone = "UTC") {
     },
   });
 
-  return habits.map((habit) => addHabitStats(habit, timezone));
+  return habits.map((habit) => toHabitResponse(habit, timezone));
 }
 
 export async function createHabit(data: {
@@ -70,7 +79,7 @@ export async function createHabit(data: {
     },
   });
 
-  return addHabitStats(habit);
+  return toHabitResponse(habit);
 }
 
 export async function getHabitById(id: number, timezone = "UTC") {
@@ -122,7 +131,7 @@ export async function updateHabit(
     },
   });
 
-  return addHabitStats(habit);
+  return toHabitResponse(habit);
 }
 
 export async function deleteHabit(id: number) {
@@ -141,29 +150,6 @@ export async function deleteHabit(id: number) {
       id,
     },
   });
-}
-
-// HELPER
-async function getHabitResponseById(id: number, timezone = "UTC") {
-  const habit = await prisma.habit.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      category: true,
-      logs: {
-        orderBy: {
-          date: "asc",
-        },
-      },
-    },
-  });
-
-  if (!habit) {
-    throw new Error("HABIT_NOT_FOUND");
-  }
-
-  return addHabitStats(habit, timezone);
 }
 
 // LOGS
@@ -231,4 +217,27 @@ export async function deleteHabitLog(
   });
 
   return getHabitResponseById(habitId, timezone);
+}
+
+// HELPERS
+async function getHabitResponseById(id: number, timezone = "UTC") {
+  const habit = await prisma.habit.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      category: true,
+      logs: {
+        orderBy: {
+          date: "asc",
+        },
+      },
+    },
+  });
+
+  if (!habit) {
+    throw new Error("HABIT_NOT_FOUND");
+  }
+
+  return toHabitResponse(habit, timezone);
 }

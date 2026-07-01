@@ -39,6 +39,18 @@ export const habitsApi = apiSlice.injectEndpoints({
       providesTags: ["Habits"],
     }),
 
+    getHabitById: builder.query<Habit, number>({
+      query: (habitId) => ({
+        url: `/habits/${habitId}`,
+        params: {
+          timezone: getUserTimezone(),
+        },
+      }),
+      providesTags: (_result, _error, habitId) => [
+        { type: "Habit", id: habitId },
+      ],
+    }),
+
     createHabit: builder.mutation<Habit, CreateHabitRequest>({
       query: (body) => ({
         url: "/habits",
@@ -57,7 +69,10 @@ export const habitsApi = apiSlice.injectEndpoints({
           categoryId,
         },
       }),
-      invalidatesTags: ["Habits"],
+      invalidatesTags: (_result, _error, { habitId }) => [
+        "Habits",
+        { type: "Habit", id: habitId },
+      ],
     }),
 
     deleteHabit: builder.mutation<{ message: string }, DeleteHabitRequest>({
@@ -77,7 +92,10 @@ export const habitsApi = apiSlice.injectEndpoints({
           timezone: getUserTimezone(),
         },
       }),
-      invalidatesTags: ["Habits"],
+      invalidatesTags: (_result, _error, { habitId }) => [
+        "Habits",
+        { type: "Habit", id: habitId },
+      ],
     }),
 
     deleteHabitLog: builder.mutation<Habit, DeleteHabitLogRequest>({
@@ -88,13 +106,17 @@ export const habitsApi = apiSlice.injectEndpoints({
           timezone: getUserTimezone(),
         },
       }),
-      invalidatesTags: ["Habits"],
+      invalidatesTags: (_result, _error, { habitId }) => [
+        "Habits",
+        { type: "Habit", id: habitId },
+      ],
     }),
   }),
 });
 
 export const {
   useGetHabitsQuery,
+  useGetHabitByIdQuery,
   useCreateHabitMutation,
   useUpdateHabitMutation,
   useDeleteHabitMutation,

@@ -2,6 +2,9 @@ import { CreateHabitForm } from "./components/CreateHabitForm";
 import { HabitList } from "./components/HabitList";
 import { ViewSwitch } from "./components/ViewSwitch";
 import { DateNavigation } from "./components/DateNavigation";
+import { CompletionSummary } from "./components/CompletionSummary";
+import { useAppSelector } from "./app/hooks";
+import { CategoryFilter } from "./components/CategoryFilter";
 import { useGetCategoriesQuery } from "./features/categories/categoriesApi";
 import { useGetHabitsQuery } from "./features/habits/habitsApi";
 
@@ -12,12 +15,21 @@ function App() {
     isError: categoriesError,
   } = useGetCategoriesQuery();
 
+  const selectedCategory = useAppSelector(
+    (state) => state.ui.selectedCategory
+  );
+  
   const {
     data: habits = [],
     isLoading: habitsLoading,
     isError: habitsError,
   } = useGetHabitsQuery();
 
+  const filteredHabits =
+    selectedCategory === "All"
+      ? habits
+      : habits.filter((habit) => habit.category.name === selectedCategory);
+      
   return (
     <main className="min-h-screen bg-gray-100 p-6">
       <div className="mx-auto max-w-4xl">
@@ -28,30 +40,29 @@ function App() {
         <ViewSwitch />
         <DateNavigation />
 
+        {!habitsLoading && !habitsError && (
+          <CompletionSummary habits={filteredHabits} />
+        )}
+
         <section className="mb-6 rounded-lg bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-medium text-gray-700">
             Categories
           </h2>
 
           {categoriesLoading && (
-            <p className="text-sm text-gray-500">Loading categories...</p>
+            <section className="mb-6 rounded-lg bg-white p-4 shadow-sm">
+              <p className="text-sm text-gray-500">Loading categories...</p>
+            </section>
           )}
 
           {categoriesError && (
-            <p className="text-sm text-red-600">Could not load categories.</p>
+            <section className="mb-6 rounded-lg bg-white p-4 shadow-sm">
+              <p className="text-sm text-red-600">Could not load categories.</p>
+            </section>
           )}
 
           {!categoriesLoading && !categoriesError && (
-            <ul className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <li
-                  key={category.id}
-                  className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800"
-                >
-                  {category.name}
-                </li>
-              ))}
-            </ul>
+            <CategoryFilter categories={categories} />
           )}
         </section>
 
@@ -73,7 +84,7 @@ function App() {
           )}
 
           {!habitsLoading && !habitsError && (
-            <HabitList habits={habits} categories={categories} />
+            <HabitList habits={filteredHabits} categories={categories} />
           )}
         </section>
       </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAppSelector } from "../app/hooks";
 import {
   useAddHabitLogMutation,
   useDeleteHabitLogMutation,
@@ -7,15 +8,27 @@ import {
 } from "../features/habits/habitsApi";
 import type { Category } from "../types/category";
 import type { Habit } from "../types/habit";
-import { getTodayDateOnly } from "../utils/date";
+import {
+  getDatesForView,
+  getTodayDateOnly,
+  isDateInFuture,
+  isSameMonth,
+} from "../utils/date";
+import { DayCell } from "./DayCell";
 
 type Props = {
   habits: Habit[];
   categories: Category[];
 };
 
+const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
 export function HabitList({ habits, categories }: Props) {
   const today = getTodayDateOnly();
+  const selectedView = useAppSelector((state) => state.ui.selectedView);
+  const selectedDate = useAppSelector((state) => state.ui.selectedDate);
+
+  const { dates, month, year } = getDatesForView(selectedDate, selectedView);
 
   const [editingHabitId, setEditingHabitId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -61,13 +74,17 @@ export function HabitList({ habits, categories }: Props) {
     await deleteHabit({ habitId }).unwrap();
   }
 
-  async function handleToggleToday(habit: Habit) {
-    const isCompletedToday = habit.logs.some((log) => log.date === today);
+  async function handleToggleDate(habit: Habit, date: string) {
+    if (isDateInFuture(date)) {
+      return;
+    }
 
-    if (isCompletedToday) {
+    const isChecked = habit.logs.some((log) => log.date === date);
+
+    if (isChecked) {
       await deleteHabitLog({
         habitId: habit.id,
-        date: today,
+        date,
       }).unwrap();
 
       return;
@@ -75,7 +92,7 @@ export function HabitList({ habits, categories }: Props) {
 
     await addHabitLog({
       habitId: habit.id,
-      date: today,
+      date,
     }).unwrap();
   }
 
@@ -86,7 +103,6 @@ export function HabitList({ habits, categories }: Props) {
   return (
     <ul className="space-y-3">
       {habits.map((habit) => {
-        const isCompletedToday = habit.logs.some((log) => log.date === today);
         const isEditing = editingHabitId === habit.id;
 
         return (
@@ -132,7 +148,7 @@ export function HabitList({ habits, categories }: Props) {
                 </button>
               </div>
             ) : (
-              <div className="flex items-start justify-between gap-4">
+              <div className="grid gap-4 lg:grid-cols-[220px_1fr_auto]">
                 <div>
                   <h3 className="font-medium text-gray-900">
                     {habit.title}
@@ -140,27 +156,55 @@ export function HabitList({ habits, categories }: Props) {
                   <p className="text-sm text-gray-500">
                     {habit.category.name}
                   </p>
+                  <p className="mt-2 text-sm text-gray-700">
+                    Current: {habit.currentStreak} / Best: {habit.bestStreak}
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="text-right text-sm text-gray-700">
-                    <p>Current: {habit.currentStreak}</p>
-                    <p>Best: {habit.bestStreak}</p>
-                  </div>
+                <div>
+                  {(selectedView === "week" || selectedView === "month") && (
+                    <div className="mb-2 grid grid-cols-7 gap-2 text-center text-xs text-gray-500">
+                      {weekDays.map((day) => (
+                        <div key={day}>{day}</div>
+                      ))}
+                    </div>
+                  )}
 
-                  <button
-                    type="button"
-                    disabled={isUpdatingLog}
-                    onClick={() => handleToggleToday(habit)}
+                  <div
                     className={
-                      isCompletedToday
-                        ? "rounded-md bg-green-700 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-                        : "rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-300 disabled:opacity-50"
+                      selectedView === "day"
+                        ? "flex"
+                        : "grid grid-cols-7 gap-2"
                     }
                   >
-                    {isCompletedToday ? "Done" : "Mark done"}
-                  </button>
+                    {dates.map((date) => {
+                      const isChecked = habit.logs.some(
+                        (log) => log.date === date
+                      );
 
+                      const isToday = date === today;
+                      const isFuture = isDateInFuture(date);
+                      const isDimmed =
+                        selectedView === "month" &&
+                        !isSameMonth(date, month, year);
+
+                      return (
+                        <DayCell
+                          key={date}
+                          date={date}
+                          isChecked={isChecked}
+                          isToday={isToday}
+                          isFuture={isFuture}
+                          isDimmed={isDimmed}
+                          showNumber={selectedView !== "day"}
+                          onClick={() => handleToggleDate(habit, date)}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex gap-2 lg:flex-col">
                   <button
                     type="button"
                     onClick={() => startEditing(habit)}
@@ -171,7 +215,7 @@ export function HabitList({ habits, categories }: Props) {
 
                   <button
                     type="button"
-                    disabled={isDeletingHabit}
+                    disabled={isDeletingHabit || isUpdatingLog}
                     onClick={() => handleDeleteHabit(habit.id)}
                     className="rounded-md bg-red-700 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
                   >

@@ -125,3 +125,94 @@ export function formatRangeLabel(date: string, view: View) {
     year: "numeric",
   });
 }
+
+export function getWeekDates(date: string) {
+  const start = getStartOfWeek(date);
+  const dates: string[] = [];
+
+  for (let i = 0; i < 7; i++) {
+    dates.push(addDays(start, i));
+  }
+
+  return dates;
+}
+
+export function getMonthDates(date: string) {
+  const monthStart = getStartOfMonth(date);
+  const parsedMonthStart = parseDateOnly(monthStart);
+
+  const firstVisibleDate = getStartOfWeek(monthStart);
+  const dates: string[] = [];
+
+  for (let i = 0; i < 42; i++) {
+    dates.push(addDays(firstVisibleDate, i));
+  }
+
+  return {
+    dates,
+    month: parsedMonthStart.getMonth(),
+    year: parsedMonthStart.getFullYear(),
+  };
+}
+
+export function getMonthOnlyDates(date: string) {
+  const monthStart = getStartOfMonth(date);
+  const parsedMonthStart = parseDateOnly(monthStart);
+  const nextMonthStart = toDateOnly(
+    new Date(parsedMonthStart.getFullYear(), parsedMonthStart.getMonth() + 1, 1)
+  );
+
+  const dates: string[] = [];
+  let cursor = monthStart;
+
+  while (cursor < nextMonthStart) {
+    dates.push(cursor);
+    cursor = addDays(cursor, 1);
+  }
+
+  return dates;
+}
+
+export function getDatesForView(date: string, view: View) {
+  if (view === "day") {
+    return {
+      dates: [date],
+      month: parseDateOnly(date).getMonth(),
+      year: parseDateOnly(date).getFullYear(),
+    };
+  }
+
+  if (view === "week") {
+    const start = getStartOfWeek(date);
+
+    return {
+      dates: getWeekDates(start),
+      month: parseDateOnly(start).getMonth(),
+      year: parseDateOnly(start).getFullYear(),
+    };
+  }
+
+  return getMonthDates(date);
+}
+
+export function getCompletionDatesForView(date: string, view: View) {
+  if (view === "day") {
+    return [date];
+  }
+
+  if (view === "week") {
+    return getWeekDates(date);
+  }
+
+  return getMonthOnlyDates(date);
+}
+
+export function getDayNumber(date: string) {
+  return parseDateOnly(date).getDate();
+}
+
+export function isSameMonth(date: string, month: number, year: number) {
+  const parsed = parseDateOnly(date);
+
+  return parsed.getMonth() === month && parsed.getFullYear() === year;
+}

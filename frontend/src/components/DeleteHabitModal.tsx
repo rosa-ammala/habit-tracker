@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { useDeleteHabitMutation } from "../features/habits/habitsApi";
-import { closeDeleteHabitModal } from "../features/ui/uiSlice";
+import { closeModal } from "../features/ui/uiSlice";
 import type { Habit } from "../types/habit";
+import { getApiErrorMessage } from "../utils/apiError";
 import { Modal } from "./Modal";
 
 type Props = {
@@ -11,20 +13,26 @@ type Props = {
 
 export function DeleteHabitModal({ habit, onDeleted }: Props) {
   const dispatch = useAppDispatch();
-  const [deleteHabit, { isLoading, isError }] = useDeleteHabitMutation();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [deleteHabit, { isLoading }] = useDeleteHabitMutation();
 
   function handleClose() {
     if (isLoading) {
       return;
     }
 
-    dispatch(closeDeleteHabitModal());
+    dispatch(closeModal());
   }
 
   async function handleConfirm() {
-    await deleteHabit({ habitId: habit.id }).unwrap();
-    dispatch(closeDeleteHabitModal());
-    onDeleted?.();
+    try {
+      setErrorMessage(null);
+      await deleteHabit({ habitId: habit.id }).unwrap();
+      dispatch(closeModal());
+      onDeleted?.();
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "Could not delete habit."));
+    }
   }
 
   return (
@@ -37,9 +45,9 @@ export function DeleteHabitModal({ habit, onDeleted }: Props) {
         Delete "{habit.title}"? This also removes its log history.
       </p>
 
-      {isError && (
+      {errorMessage && (
         <p className="mb-4 text-sm text-red-600">
-          Could not delete habit.
+          {errorMessage}
         </p>
       )}
 

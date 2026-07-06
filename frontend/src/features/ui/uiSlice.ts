@@ -5,13 +5,14 @@ import {
   normalizeDateForView,
 } from "../../utils/date";
 
+type ActiveModal = "create" | "edit" | "delete" | null;
+
 type UiState = {
   selectedView: View;
   selectedDate: string;
   selectedCategory: string;
-  isCreateHabitModalOpen: boolean;
-  editingHabitId: number | null;
-  deletingHabitId: number | null;
+  activeModal: ActiveModal;
+  selectedHabitId: number | null;
 };
 
 const initialView: View = "week";
@@ -20,9 +21,8 @@ const initialState: UiState = {
   selectedView: initialView,
   selectedDate: normalizeDateForView(getTodayDateOnly(), initialView),
   selectedCategory: "All",
-  isCreateHabitModalOpen: false,
-  editingHabitId: null,
-  deletingHabitId: null,
+  activeModal: null,
+  selectedHabitId: null,
 };
 
 const uiSlice = createSlice({
@@ -46,22 +46,20 @@ const uiSlice = createSlice({
       state.selectedCategory = action.payload;
     },
     openCreateHabitModal(state) {
-      state.isCreateHabitModalOpen = true;
-    },
-    closeCreateHabitModal(state) {
-      state.isCreateHabitModalOpen = false;
+      state.activeModal = "create";
+      state.selectedHabitId = null;
     },
     openEditHabitModal(state, action: PayloadAction<number>) {
-      state.editingHabitId = action.payload;
-    },
-    closeEditHabitModal(state) {
-      state.editingHabitId = null;
+      state.activeModal = "edit";
+      state.selectedHabitId = action.payload;
     },
     openDeleteHabitModal(state, action: PayloadAction<number>) {
-      state.deletingHabitId = action.payload;
+      state.activeModal = "delete";
+      state.selectedHabitId = action.payload;
     },
-    closeDeleteHabitModal(state) {
-      state.deletingHabitId = null;
+    closeModal(state) {
+      state.activeModal = null;
+      state.selectedHabitId = null;
     },
   },
 });
@@ -71,11 +69,9 @@ export const {
   setSelectedDate,
   setSelectedCategory,
   openCreateHabitModal,
-  closeCreateHabitModal,
   openEditHabitModal,
-  closeEditHabitModal,
   openDeleteHabitModal,
-  closeDeleteHabitModal,
+  closeModal,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

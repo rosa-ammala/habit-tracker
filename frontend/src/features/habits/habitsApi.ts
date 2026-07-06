@@ -92,10 +92,66 @@ export const habitsApi = apiSlice.injectEndpoints({
           timezone: getUserTimezone(),
         },
       }),
-      invalidatesTags: (_result, _error, { habitId }) => [
-        "Habits",
-        { type: "Habit", id: habitId },
-      ],
+      async onQueryStarted({ habitId, date }, { dispatch, queryFulfilled }) {
+        const optimisticListPatch = dispatch(
+          habitsApi.util.updateQueryData("getHabits", undefined, (draft) => {
+            const habit = draft.find((habit) => habit.id === habitId);
+
+            if (!habit || habit.logs.some((log) => log.date === date)) {
+              return;
+            }
+
+            habit.logs.push({
+              id: -Date.now(),
+              habitId,
+              date,
+            });
+          })
+        );
+
+        const optimisticDetailPatch = dispatch(
+          habitsApi.util.updateQueryData("getHabitById", habitId, (draft) => {
+            if (draft.logs.some((log) => log.date === date)) {
+              return;
+            }
+
+            draft.logs.push({
+              id: -Date.now(),
+              habitId,
+              date,
+            });
+          })
+        );
+
+        try {
+          const { data: updatedHabit } = await queryFulfilled;
+
+          dispatch(
+            habitsApi.util.updateQueryData("getHabits", undefined, (draft) => {
+              const index = draft.findIndex(
+                (habit) => habit.id === updatedHabit.id
+              );
+
+              if (index !== -1) {
+                draft[index] = updatedHabit;
+              }
+            })
+          );
+
+          dispatch(
+            habitsApi.util.updateQueryData(
+              "getHabitById",
+              updatedHabit.id,
+              (draft) => {
+                Object.assign(draft, updatedHabit);
+              }
+            )
+          );
+        } catch {
+          optimisticListPatch.undo();
+          optimisticDetailPatch.undo();
+        }
+      },
     }),
 
     deleteHabitLog: builder.mutation<Habit, DeleteHabitLogRequest>({
@@ -106,10 +162,54 @@ export const habitsApi = apiSlice.injectEndpoints({
           timezone: getUserTimezone(),
         },
       }),
-      invalidatesTags: (_result, _error, { habitId }) => [
-        "Habits",
-        { type: "Habit", id: habitId },
-      ],
+      async onQueryStarted({ habitId, date }, { dispatch, queryFulfilled }) {
+        const optimisticListPatch = dispatch(
+          habitsApi.util.updateQueryData("getHabits", undefined, (draft) => {
+            const habit = draft.find((habit) => habit.id === habitId);
+
+            if (!habit) {
+              return;
+            }
+
+            habit.logs = habit.logs.filter((log) => log.date !== date);
+          })
+        );
+
+        const optimisticDetailPatch = dispatch(
+          habitsApi.util.updateQueryData("getHabitById", habitId, (draft) => {
+            draft.logs = draft.logs.filter((log) => log.date !== date);
+          })
+        );
+
+        try {
+          const { data: updatedHabit } = await queryFulfilled;
+
+          dispatch(
+            habitsApi.util.updateQueryData("getHabits", undefined, (draft) => {
+              const index = draft.findIndex(
+                (habit) => habit.id === updatedHabit.id
+              );
+
+              if (index !== -1) {
+                draft[index] = updatedHabit;
+              }
+            })
+          );
+
+          dispatch(
+            habitsApi.util.updateQueryData(
+              "getHabitById",
+              updatedHabit.id,
+              (draft) => {
+                Object.assign(draft, updatedHabit);
+              }
+            )
+          );
+        } catch {
+          optimisticListPatch.undo();
+          optimisticDetailPatch.undo();
+        }
+      },
     }),
   }),
 });

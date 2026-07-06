@@ -92,9 +92,9 @@ React local state:
 - small UI states of a single component
 
 ## Cache invalidation
-RTK Query caches data fetched from the backend. When data is changed with a mutation, the related cached data must be marked as outdated so RTK Query can refetch it.
+RTK Query caches data fetched from the backend. Normal habit changes can use tag invalidation, but habit log toggles need immediate UI feedback. For log changes the UI updates optimistically first and then replaces cached data with the backend response.
 
-Planned tags:
+Tags:
 - `Habits` for the habit list
 - `Habit:{id}` for a single habit
 - `Categories` for categories
@@ -103,10 +103,12 @@ Rules:
 - createHabit invalidates `Habits`
 - updateHabit invalidates `Habits` and `Habit:{id}`
 - deleteHabit invalidates `Habits`
-- addLog/deleteLog invalidates `Habits` and `Habit:{id}`
+- addLog/deleteLog update `getHabits` and `getHabitById` optimistically with `onQueryStarted`
+- addLog/deleteLog replace the cached habit with the backend response after the request succeeds
+- addLog/deleteLog roll back the optimistic cache update if the request fails
 - createCategory invalidates `Categories`
 
-This keeps the UI in sync with backend-calculated logs and streaks.
+This keeps log toggles visually immediate while the backend remains the source of truth for persisted logs and calculated streaks.
 
 ## Date and timezone strategy
 

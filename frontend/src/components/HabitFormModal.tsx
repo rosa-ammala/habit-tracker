@@ -9,8 +9,7 @@ type Props = {
   initialTitle?: string;
   initialCategoryId?: number;
   isLoading: boolean;
-  isError: boolean;
-  errorMessage: string;
+  errorMessage?: string | null;
   onClose: () => void;
   onSubmit: (data: { title: string; categoryId: number }) => Promise<void>;
 };
@@ -22,7 +21,6 @@ export function HabitFormModal({
   initialTitle = "",
   initialCategoryId,
   isLoading,
-  isError,
   errorMessage,
   onClose,
   onSubmit,
@@ -88,7 +86,7 @@ export function HabitFormModal({
           </select>
         </div>
 
-        {isError && (
+        {errorMessage && (
           <p className="text-sm text-red-600">
             {errorMessage}
           </p>

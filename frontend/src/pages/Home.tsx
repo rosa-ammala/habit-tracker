@@ -10,6 +10,7 @@ import { CreateHabitModal } from "../components/CreateHabitModal";
 import { openCreateHabitModal } from "../features/ui/uiSlice";
 import { EditHabitModal } from "../components/EditHabitModal";
 import { DeleteHabitModal } from "../components/DeleteHabitModal";
+import { getApiErrorMessage } from "../utils/apiError";
 
 export function Home() {
   const dispatch = useAppDispatch();
@@ -18,21 +19,20 @@ export function Home() {
     data: categories = [],
     isLoading: categoriesLoading,
     isError: categoriesError,
+    error: categoriesQueryError,
   } = useGetCategoriesQuery();
 
   const selectedCategory = useAppSelector(
     (state) => state.ui.selectedCategory
   );
-  const isCreateHabitModalOpen = useAppSelector(
-    (state) => state.ui.isCreateHabitModalOpen
-  );
-  const editingHabitId = useAppSelector((state) => state.ui.editingHabitId);
-  const deletingHabitId = useAppSelector((state) => state.ui.deletingHabitId);
+  const activeModal = useAppSelector((state) => state.ui.activeModal);
+  const selectedHabitId = useAppSelector((state) => state.ui.selectedHabitId);
 
   const {
     data: habits = [],
     isLoading: habitsLoading,
     isError: habitsError,
+    error: habitsQueryError,
   } = useGetHabitsQuery();
 
   const filteredHabits =
@@ -41,14 +41,14 @@ export function Home() {
       : habits.filter((habit) => habit.category.name === selectedCategory);
 
   const editingHabit =
-    editingHabitId === null
+    activeModal !== "edit" || selectedHabitId === null
       ? undefined
-      : habits.find((habit) => habit.id === editingHabitId);
+      : habits.find((habit) => habit.id === selectedHabitId);
 
   const deletingHabit =
-    deletingHabitId === null
+    activeModal !== "delete" || selectedHabitId === null
       ? undefined
-      : habits.find((habit) => habit.id === deletingHabitId);
+      : habits.find((habit) => habit.id === selectedHabitId);
 
   return (
     <main className="min-h-screen bg-gray-100 p-6">
@@ -72,7 +72,12 @@ export function Home() {
 
         {categoriesError && (
           <section className="mb-6 rounded-lg bg-white p-4 shadow-sm">
-            <p className="text-sm text-red-600">Could not load categories.</p>
+            <p className="text-sm text-red-600">
+              {getApiErrorMessage(
+                categoriesQueryError,
+                "Could not load categories."
+              )}
+            </p>
           </section>
         )}
 
@@ -101,7 +106,9 @@ export function Home() {
           )}
 
           {habitsError && (
-            <p className="text-sm text-red-600">Could not load habits.</p>
+            <p className="text-sm text-red-600">
+              {getApiErrorMessage(habitsQueryError, "Could not load habits.")}
+            </p>
           )}
 
           {!habitsLoading && !habitsError && (
@@ -109,7 +116,7 @@ export function Home() {
           )}
         </section>
 
-        {isCreateHabitModalOpen && !categoriesLoading && !categoriesError && (
+        {activeModal === "create" && !categoriesLoading && !categoriesError && (
           <CreateHabitModal categories={categories} />
         )}
 

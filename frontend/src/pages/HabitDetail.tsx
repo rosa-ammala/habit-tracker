@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { DeleteHabitModal } from "../components/DeleteHabitModal";
+import { DayCell } from "../components/DayCell";
 import { EditHabitModal } from "../components/EditHabitModal";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
 import {
@@ -13,6 +15,7 @@ import {
   openEditHabitModal,
 } from "../features/ui/uiSlice";
 import { getMonthOnlyDates, getTodayDateOnly, isDateInFuture } from "../utils/date";
+import { getApiErrorMessage } from "../utils/apiError";
 
 const months = Array.from({ length: 12 }, (_, index) => index);
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -23,25 +26,27 @@ export function HabitDetail() {
   const { id } = useParams();
   const habitId = Number(id);
   const currentYear = new Date().getFullYear();
+  const [visibleYear, setVisibleYear] = useState(currentYear);
+  const [logErrorMessage, setLogErrorMessage] = useState<string | null>(null);
   const today = getTodayDateOnly();
-  const editingHabitId = useAppSelector((state) => state.ui.editingHabitId);
-  const deletingHabitId = useAppSelector((state) => state.ui.deletingHabitId);
+  const activeModal = useAppSelector((state) => state.ui.activeModal);
+  const selectedHabitId = useAppSelector((state) => state.ui.selectedHabitId);
 
   const {
     data: categories = [],
     isLoading: categoriesLoading,
     isError: categoriesError,
+    error: categoriesQueryError,
   } = useGetCategoriesQuery();
 
-  const [addHabitLog, { isLoading: isAddingLog }] = useAddHabitLogMutation();
-  const [deleteHabitLog, { isLoading: isDeletingLog }] =
-    useDeleteHabitLogMutation();
-  const isUpdatingLog = isAddingLog || isDeletingLog;
+  const [addHabitLog] = useAddHabitLogMutation();
+  const [deleteHabitLog] = useDeleteHabitLogMutation();
 
   const {
     data: habit,
     isLoading,
     isError,
+    error,
   } = useGetHabitByIdQuery(habitId, {
     skip: !Number.isInteger(habitId),
   });
@@ -76,7 +81,9 @@ export function HabitDetail() {
           <Link to="/" className="text-sm font-medium text-gray-700">
             Back
           </Link>
-          <p className="mt-6 text-sm text-red-600">Could not load habit.</p>
+          <p className="mt-6 text-sm text-red-600">
+            {getApiErrorMessage(error, "Could not load habit.")}
+          </p>
         </div>
       </main>
     );
@@ -84,29 +91,39 @@ export function HabitDetail() {
 
   const selectedHabit = habit;
   const logDates = new Set(selectedHabit.logs.map((log) => log.date));
-  const isEditModalOpen = editingHabitId === selectedHabit.id;
-  const isDeleteModalOpen = deletingHabitId === selectedHabit.id;
+  const isEditModalOpen =
+    activeModal === "edit" && selectedHabitId === selectedHabit.id;
+  const isDeleteModalOpen =
+    activeModal === "delete" && selectedHabitId === selectedHabit.id;
+  const isNextYearDisabled = visibleYear >= currentYear;
 
-  async function handleToggleDate(date: string) {
-    if (isDateInFuture(date) || isUpdatingLog) {
+  async function handleToggleDate(date: string, nextChecked: boolean) {
+    if (isDateInFuture(date)) {
       return;
     }
 
-    const isChecked = logDates.has(date);
+    try {
+      setLogErrorMessage(null);
 
-    if (isChecked) {
+      if (nextChecked) {
+        await addHabitLog({
+          habitId: selectedHabit.id,
+          date,
+        }).unwrap();
+
+        return;
+      }
+
       await deleteHabitLog({
         habitId: selectedHabit.id,
         date,
       }).unwrap();
-
-      return;
+    } catch (error) {
+      setLogErrorMessage(
+        getApiErrorMessage(error, "Could not update habit log.")
+      );
+      throw error;
     }
-
-    await addHabitLog({
-      habitId: selectedHabit.id,
-      date,
-    }).unwrap();
   }
 
   return (
@@ -125,6 +142,14 @@ export function HabitDetail() {
               type="button"
               onClick={() => dispatch(openEditHabitModal(selectedHabit.id))}
               disabled={categoriesLoading || categoriesError}
+              title={
+                categoriesError
+                  ? getApiErrorMessage(
+                      categoriesQueryError,
+                      "Could not load categories."
+                    )
+                  : undefined
+              }
               className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200 disabled:opacity-50"
             >
               Edit
@@ -169,15 +194,42 @@ export function HabitDetail() {
         </section>
 
         <section className="rounded-lg bg-white p-4 shadow-sm">
-          <h2 className="mb-4 text-sm font-medium text-gray-700">
-            {currentYear}
-          </h2>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setVisibleYear((year) => year - 1)}
+              className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200"
+            >
+              Previous year
+            </button>
+
+            <h2 className="text-sm font-medium text-gray-700">
+              {visibleYear}
+            </h2>
+
+            <button
+              type="button"
+              onClick={() =>
+                setVisibleYear((year) => Math.min(year + 1, currentYear))
+              }
+              disabled={isNextYearDisabled}
+              className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Next year
+            </button>
+          </div>
+
+          {logErrorMessage && (
+            <p className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
+              {logErrorMessage}
+            </p>
+          )}
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {months.map((month) => {
-              const monthDate = `${currentYear}-${String(month + 1).padStart(2, "0")}-01`;
+              const monthDate = `${visibleYear}-${String(month + 1).padStart(2, "0")}-01`;
               const dates = getMonthOnlyDates(monthDate);
-              const monthName = new Date(currentYear, month, 1).toLocaleDateString(
+              const monthName = new Date(visibleYear, month, 1).toLocaleDateString(
                 "en-GB",
                 { month: "long" }
               );
@@ -204,25 +256,19 @@ export function HabitDetail() {
                       const isFuture = isDateInFuture(date);
 
                       return (
-                        <button
-                          type="button"
+                        <DayCell
                           key={date}
-                          title={date}
-                          disabled={isFuture || isUpdatingLog}
-                          onClick={() => handleToggleDate(date)}
-                          className={[
-                            "flex h-7 w-7 items-center justify-center rounded text-xs ring-1",
-                            isChecked
-                              ? "bg-green-700 text-white ring-green-700"
-                              : "bg-white text-gray-700 ring-gray-200",
-                            isToday && !isChecked ? "ring-2 ring-gray-900" : "",
-                            isFuture || isUpdatingLog
-                              ? "cursor-not-allowed opacity-25"
-                              : "hover:bg-gray-100",
-                          ].join(" ")}
-                        >
-                          {Number(date.slice(-2))}
-                        </button>
+                          date={date}
+                          isChecked={isChecked}
+                          isToday={isToday}
+                          isFuture={isFuture}
+                          isDimmed={false}
+                          showNumber
+                          size="sm"
+                          onClick={(nextChecked) =>
+                            handleToggleDate(date, nextChecked)
+                          }
+                        />
                       );
                     })}
                   </div>

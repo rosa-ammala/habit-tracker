@@ -85,16 +85,16 @@ export function DayCell({
       onPointerDown={handlePointerDown}
       onClick={handleClick}
       className={[
-        "flex items-center justify-center rounded-md text-xs font-medium ring-1",
-        size === "sm" ? "h-7 w-7" : "h-9 w-9",
+        "flex shrink-0 items-center justify-center rounded-lg text-xs font-semibold ring-1",
+        size === "sm" ? "h-7 w-7" : "h-8 w-8 min-h-[32px] min-w-[32px]",
         visualChecked
-          ? "bg-green-700 text-white ring-green-700"
-          : "bg-white text-gray-800 ring-gray-200",
-        isToday && !visualChecked ? "ring-2 ring-gray-900" : "",
+          ? "bg-indigo-400 text-white ring-indigo-400 shadow-sm shadow-indigo-500/20"
+          : "bg-white text-stone-700 ring-stone-200",
+        isToday && !visualChecked ? "ring-2 ring-amber-500" : "",
         isDimmed ? "opacity-35" : "",
         isFuture ? "cursor-not-allowed opacity-25" : "",
         isPending || isLocalPending ? "cursor-wait opacity-80" : "",
-        !isFuture && !isPending && !isLocalPending ? "hover:bg-gray-100" : "",
+        !isFuture && !isPending && !isLocalPending ? "cursor-pointer hover:bg-indigo-50 hover:ring-indigo-200" : "",
       ].join(" ")}
     >
       {showNumber ? getCellLabel(date) : visualChecked ? "✓" : ""}

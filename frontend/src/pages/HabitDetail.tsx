@@ -14,7 +14,12 @@ import {
   openDeleteHabitModal,
   openEditHabitModal,
 } from "../features/ui/uiSlice";
-import { getMonthOnlyDates, getTodayDateOnly, isDateInFuture } from "../utils/date";
+import {
+  getDatesForView,
+  getTodayDateOnly,
+  isDateInFuture,
+  isSameMonth,
+} from "../utils/date";
 import { getApiErrorMessage } from "../utils/apiError";
 
 const months = Array.from({ length: 12 }, (_, index) => index);
@@ -53,12 +58,14 @@ export function HabitDetail() {
 
   if (!Number.isInteger(habitId)) {
     return (
-      <main className="min-h-screen bg-gray-100 p-6">
+      <main className="min-h-screen bg-indigo-100 px-4 py-5 text-stone-950 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <Link to="/" className="text-sm font-medium text-gray-700">
+          <Link to="/" className="text-sm font-semibold text-stone-700">
             Back
           </Link>
-          <p className="mt-6 text-sm text-red-600">Invalid habit id.</p>
+          <p className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
+            Invalid habit id.
+          </p>
         </div>
       </main>
     );
@@ -66,9 +73,11 @@ export function HabitDetail() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gray-100 p-6">
+      <main className="min-h-screen bg-indigo-100 px-4 py-5 text-stone-950 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <p className="text-sm text-gray-500">Loading habit...</p>
+          <p className="rounded-lg bg-white/82 px-4 py-5 text-sm text-stone-500 shadow-sm">
+            Loading habit...
+          </p>
         </div>
       </main>
     );
@@ -76,12 +85,12 @@ export function HabitDetail() {
 
   if (isError || !habit) {
     return (
-      <main className="min-h-screen bg-gray-100 p-6">
+      <main className="min-h-screen bg-indigo-100 px-4 py-5 text-stone-950 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <Link to="/" className="text-sm font-medium text-gray-700">
+          <Link to="/" className="text-sm font-semibold text-stone-700">
             Back
           </Link>
-          <p className="mt-6 text-sm text-red-600">
+          <p className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
             {getApiErrorMessage(error, "Could not load habit.")}
           </p>
         </div>
@@ -127,13 +136,19 @@ export function HabitDetail() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <div className="mx-auto max-w-5xl">
+    <main className="min-h-screen bg-indigo-100 px-4 py-5 text-stone-950 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link
             to="/"
-            className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-transparent bg-white px-3 py-2 text-sm font-semibold text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
           >
+            <img
+              src="/ui-icons/arrow-left.svg"
+              alt=""
+              aria-hidden="true"
+              className="mr-2 h-4 w-4 shrink-0"
+            />
             Back
           </Link>
 
@@ -147,63 +162,109 @@ export function HabitDetail() {
                   ? getApiErrorMessage(
                       categoriesQueryError,
                       "Could not load categories."
-                    )
+                )
                   : undefined
               }
-              className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200 disabled:opacity-50"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-transparent bg-white px-3 py-2 text-sm font-semibold text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 disabled:opacity-50"
             >
+              <img
+                src="/ui-icons/edit.svg"
+                alt=""
+                aria-hidden="true"
+                className="mr-2 h-4 w-4 shrink-0"
+              />
               Edit
             </button>
 
             <button
               type="button"
               onClick={() => dispatch(openDeleteHabitModal(selectedHabit.id))}
-              className="rounded-md bg-red-700 px-3 py-2 text-sm font-medium text-white"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 ring-1 ring-rose-100 hover:bg-rose-100"
             >
+              <img
+                src="/ui-icons/delete.svg"
+                alt=""
+                aria-hidden="true"
+                className="mr-2 h-4 w-4 shrink-0"
+              />
               Delete
             </button>
           </div>
         </div>
 
-        <section className="mb-6 rounded-lg bg-white p-4 shadow-sm">
+        <section className="mb-6 rounded-lg border border-white/70 bg-white/82 p-5 shadow-sm shadow-stone-200/70 backdrop-blur sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-500">
+                Year overview
+              </p>
+              <h1 className="mt-2 text-3xl font-semibold text-stone-950">
                 {selectedHabit.title}
               </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                {selectedHabit.category.name}
-              </p>
+              <div className="mt-1 flex items-center gap-2 text-base text-stone-500">
+                <img
+                  src={`/category-icons/${selectedHabit.category.icon}`}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-5 w-5 shrink-0"
+                />
+                <span>{selectedHabit.category.name}</span>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-md bg-gray-50 px-4 py-3 text-center ring-1 ring-gray-200">
-                <p className="text-gray-500">Current</p>
-                <p className="mt-1 text-xl font-semibold text-gray-900">
-                  {selectedHabit.currentStreak}
-                </p>
+              <div className="rounded-lg bg-indigo-50 px-5 py-4 text-center ring-1 ring-indigo-100">
+                <p className="text-indigo-500">Current streak</p>
+                <div className="mt-1 flex items-center justify-center gap-1">
+                  <span className="text-2xl font-semibold leading-none text-indigo-500">
+                    {selectedHabit.currentStreak}
+                  </span>
+                  <img
+                    src="/ui-icons/fire.svg"
+                    alt=""
+                    aria-hidden="true"
+                    className="h-5 w-5 shrink-0 translate-y-0.5"
+                  />
+                </div>
+                <p className="text-indigo-500">days</p>
               </div>
-              <div className="rounded-md bg-gray-50 px-4 py-3 text-center ring-1 ring-gray-200">
-                <p className="text-gray-500">Best</p>
-                <p className="mt-1 text-xl font-semibold text-gray-900">
-                  {selectedHabit.bestStreak}
-                </p>
+              <div className="rounded-lg bg-amber-50 px-5 py-4 text-center ring-1 ring-amber-100">
+                <p className="text-amber-700">Best streak</p>
+                <div className="mt-1 flex items-center justify-center gap-1">
+                  <span className="text-2xl font-semibold leading-none text-amber-950">
+                    {selectedHabit.bestStreak}
+                  </span>
+                  <img
+                    src="/ui-icons/fire.svg"
+                    alt=""
+                    aria-hidden="true"
+                    className="h-5 w-5 shrink-0 translate-y-0.5"
+                  />
+                </div>
+                <p className="text-amber-700">days</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="rounded-lg bg-white p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between gap-3">
+        <section>
+          <div className="mb-5 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => setVisibleYear((year) => year - 1)}
-              className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200"
+              aria-label="Previous year"
+              title="Previous year"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent bg-white text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
             >
-              Previous year
+              <img
+                src="/ui-icons/arrow-left.svg"
+                alt=""
+                aria-hidden="true"
+                className="h-3.5 w-3.5"
+              />
             </button>
 
-            <h2 className="text-sm font-medium text-gray-700">
+            <h2 className="px-5 py-2 text-sm font-semibold text-stone-800">
               {visibleYear}
             </h2>
 
@@ -213,14 +274,21 @@ export function HabitDetail() {
                 setVisibleYear((year) => Math.min(year + 1, currentYear))
               }
               disabled={isNextYearDisabled}
-              className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Next year"
+              title="Next year"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent bg-white text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-35"
             >
-              Next year
+              <img
+                src="/ui-icons/arrow-right.svg"
+                alt=""
+                aria-hidden="true"
+                className="h-3.5 w-3.5"
+              />
             </button>
           </div>
 
           {logErrorMessage && (
-            <p className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
+            <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
               {logErrorMessage}
             </p>
           )}
@@ -228,7 +296,11 @@ export function HabitDetail() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {months.map((month) => {
               const monthDate = `${visibleYear}-${String(month + 1).padStart(2, "0")}-01`;
-              const dates = getMonthOnlyDates(monthDate);
+              const {
+                dates,
+                month: calendarMonth,
+                year: calendarYear,
+              } = getDatesForView(monthDate, "month");
               const monthName = new Date(visibleYear, month, 1).toLocaleDateString(
                 "en-GB",
                 { month: "long" }
@@ -237,23 +309,38 @@ export function HabitDetail() {
               return (
                 <div
                   key={month}
-                  className="rounded-md border border-gray-200 bg-gray-50 p-3"
+                  className="rounded-xl border-2 border-transparent bg-white p-3 shadow"
                 >
-                  <h3 className="mb-2 text-center text-sm font-medium text-gray-800">
+                  <h3 className="mb-2 text-center text-sm font-semibold text-stone-800">
                     {monthName}
                   </h3>
 
-                  <div className="mb-2 grid grid-cols-7 gap-1 text-center text-xs text-gray-500">
+                  <div className="mb-2 grid grid-cols-7 justify-items-center gap-2 text-center text-xs font-medium text-stone-400">
                     {weekDays.map((day) => (
                       <div key={day}>{day}</div>
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-7 gap-1">
+                  <div className="grid grid-cols-7 justify-items-center gap-2">
                     {dates.map((date) => {
                       const isChecked = logDates.has(date);
                       const isToday = date === today;
                       const isFuture = isDateInFuture(date);
+                      const isOutsideMonth = !isSameMonth(
+                        date,
+                        calendarMonth,
+                        calendarYear
+                      );
+
+                      if (isOutsideMonth) {
+                        return (
+                          <div
+                            key={date}
+                            aria-hidden="true"
+                            className="h-7 w-7"
+                          />
+                        );
+                      }
 
                       return (
                         <DayCell

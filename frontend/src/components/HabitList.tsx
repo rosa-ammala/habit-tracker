@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { useAppSelector } from "../app/hooks";
 import {
   useAddHabitLogMutation,
   useDeleteHabitLogMutation,
 } from "../features/habits/habitsApi";
-import {
-  openDeleteHabitModal,
-  openEditHabitModal,
-} from "../features/ui/uiSlice";
 import type { Habit } from "../types/habit";
 import {
   getDatesForView,
@@ -26,7 +22,6 @@ type Props = {
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function HabitList({ habits }: Props) {
-  const dispatch = useAppDispatch();
   const today = getTodayDateOnly();
   const selectedView = useAppSelector((state) => state.ui.selectedView);
   const selectedDate = useAppSelector((state) => state.ui.selectedDate);
@@ -71,43 +66,73 @@ export function HabitList({ habits }: Props) {
   }
 
   if (habits.length === 0) {
-    return <p className="text-sm text-gray-500">No habits yet.</p>;
+    return (
+      <div className="rounded-lg border border-dashed border-stone-300 bg-stone-50/80 px-4 py-8 text-center">
+        <p className="text-sm font-medium text-stone-700">No habits yet.</p>
+        <p className="mt-1 text-sm text-stone-500">
+          Add your first habit to start tracking.
+        </p>
+      </div>
+    );
   }
 
   return (
     <>
       {logErrorMessage && (
-        <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
+        <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
           {logErrorMessage}
         </p>
       )}
 
-      <ul className="space-y-3">
+      <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {habits.map((habit) => {
           return (
             <li
               key={habit.id}
-              className="rounded-md border border-gray-200 bg-gray-50 p-3"
+              className="rounded-xl border-2 border-transparent bg-white p-3 shadow transition hover:border-gray-300 sm:p-4"
             >
-              <div className="grid gap-4 lg:grid-cols-[220px_1fr_auto]">
-                <div>
+              <div className="flex h-full flex-col gap-4">
+                <div className="min-w-0">
                   <Link
                     to={`/habits/${habit.id}`}
-                    className="font-medium text-gray-900 hover:underline"
+                    className="block truncate text-base font-semibold text-stone-950 hover:text-indigo-500"
                   >
                     {habit.title}
                   </Link>
-                  <p className="text-sm text-gray-500">
-                    {habit.category.name}
-                  </p>
-                  <p className="mt-2 text-sm text-gray-700">
-                    Current: {habit.currentStreak} / Best: {habit.bestStreak}
-                  </p>
+                  <div className="mt-1 flex items-center gap-2 text-sm text-stone-500">
+                    <img
+                      src={`/category-icons/${habit.category.icon}`}
+                      alt=""
+                      aria-hidden="true"
+                      className="h-4 w-4 shrink-0"
+                    />
+                    <span className="truncate">{habit.category.name}</span>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 text-sm text-stone-700">
+                    <img
+                      src="/ui-icons/fire.svg"
+                      alt=""
+                      aria-hidden="true"
+                      className="h-4 w-4 shrink-0"
+                    />
+                    <span>
+                      current:{" "}
+                      <span className="text-indigo-500">
+                        {habit.currentStreak}
+                      </span>
+                    </span>
+                    <span>
+                      best:{" "}
+                      <span className="text-indigo-500">
+                        {habit.bestStreak}
+                      </span>
+                    </span>
+                  </div>
                 </div>
 
-                <div>
+                <div className="min-w-0 pb-1">
                   {(selectedView === "week" || selectedView === "month") && (
-                    <div className="mb-2 grid grid-cols-7 gap-2 text-center text-xs text-gray-500">
+                    <div className="mb-2 grid grid-cols-7 justify-items-center gap-2 text-center text-xs font-medium text-stone-400">
                       {weekDays.map((day) => (
                         <div key={day}>{day}</div>
                       ))}
@@ -117,8 +142,8 @@ export function HabitList({ habits }: Props) {
                   <div
                     className={
                       selectedView === "day"
-                        ? "flex"
-                        : "grid grid-cols-7 gap-2"
+                        ? "flex justify-center"
+                        : "grid grid-cols-7 justify-items-center gap-2"
                     }
                   >
                     {dates.map((date) => {
@@ -128,9 +153,19 @@ export function HabitList({ habits }: Props) {
 
                       const isToday = date === today;
                       const isFuture = isDateInFuture(date);
-                      const isDimmed =
+                      const isOutsideMonth =
                         selectedView === "month" &&
                         !isSameMonth(date, month, year);
+
+                      if (isOutsideMonth) {
+                        return (
+                          <div
+                            key={date}
+                            aria-hidden="true"
+                            className="h-8 w-8 min-h-[32px] min-w-[32px]"
+                          />
+                        );
+                      }
 
                       return (
                         <DayCell
@@ -139,7 +174,7 @@ export function HabitList({ habits }: Props) {
                           isChecked={isChecked}
                           isToday={isToday}
                           isFuture={isFuture}
-                          isDimmed={isDimmed}
+                          isDimmed={false}
                           showNumber={selectedView !== "day"}
                           onClick={(nextChecked) =>
                             handleToggleDate(habit, date, nextChecked)
@@ -148,24 +183,6 @@ export function HabitList({ habits }: Props) {
                       );
                     })}
                   </div>
-                </div>
-
-                <div className="flex gap-2 lg:flex-col">
-                  <button
-                    type="button"
-                    onClick={() => dispatch(openEditHabitModal(habit.id))}
-                    className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-300"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => dispatch(openDeleteHabitModal(habit.id))}
-                    className="rounded-md bg-red-700 px-3 py-2 text-sm font-medium text-white"
-                  >
-                    Delete
-                  </button>
                 </div>
               </div>
             </li>

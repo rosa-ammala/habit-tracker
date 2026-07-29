@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Category } from "../types/category";
+import { CategoryButton } from "./CategoryButton";
 import { Modal } from "./Modal";
 
 type Props = {
@@ -26,12 +27,12 @@ export function HabitFormModal({
   onSubmit,
 }: Props) {
   const [habitTitle, setHabitTitle] = useState(initialTitle);
-  const [categoryId, setCategoryId] = useState(
-    initialCategoryId ? String(initialCategoryId) : ""
+  const [categoryId, setCategoryId] = useState<number | null>(
+    initialCategoryId ?? null
   );
 
   const canSubmit =
-    habitTitle.trim().length > 0 && categoryId !== "" && !isLoading;
+    habitTitle.trim().length > 0 && categoryId !== null && !isLoading;
 
   function handleClose() {
     if (isLoading) {
@@ -50,7 +51,7 @@ export function HabitFormModal({
 
     await onSubmit({
       title: habitTitle.trim(),
-      categoryId: Number(categoryId),
+      categoryId,
     });
   }
 
@@ -58,46 +59,44 @@ export function HabitFormModal({
     <Modal title={title} isCloseDisabled={isLoading} onClose={handleClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1.5 block text-sm font-semibold text-stone-700">
             Habit title
           </label>
           <input
             value={habitTitle}
             onChange={(event) => setHabitTitle(event.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
+            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none focus:border-indigo-400 focus:ring-3 focus:ring-indigo-100"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1.5 block text-sm font-semibold text-stone-700">
             Category
           </label>
-          <select
-            value={categoryId}
-            onChange={(event) => setCategoryId(event.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-500"
-          >
-            <option value="">Select category</option>
+          <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
+              <CategoryButton
+                key={category.id}
+                category={category}
+                isSelected={categoryId === category.id}
+                onClick={() => setCategoryId(category.id)}
+              />
             ))}
-          </select>
+          </div>
         </div>
 
         {errorMessage && (
-          <p className="text-sm text-red-600">
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
             {errorMessage}
           </p>
         )}
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 pt-1">
           <button
             type="button"
             onClick={handleClose}
             disabled={isLoading}
-            className="rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-800 ring-1 ring-gray-300 disabled:opacity-50"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-transparent bg-white px-4 py-2 text-sm font-semibold text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -105,7 +104,7 @@ export function HabitFormModal({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-transparent bg-indigo-400 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-500/20 hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-stone-300"
           >
             {isLoading ? "Saving..." : submitLabel}
           </button>

@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { setSelectedCategory } from "../features/ui/uiSlice";
 import type { Category } from "../types/category";
+import { CategoryButton } from "./CategoryButton";
 
 type Props = {
   categories: Category[];
@@ -13,8 +14,8 @@ export function CategoryFilter({ categories }: Props) {
   );
 
   return (
-    <section className="mb-6 rounded-lg bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-medium text-gray-700">
+    <section className="mb-6 w-full max-w-5xl">
+      <h2 className="font-semibold text-stone-950 mb-4">
         Categories
       </h2>
 
@@ -24,8 +25,8 @@ export function CategoryFilter({ categories }: Props) {
           onClick={() => dispatch(setSelectedCategory("All"))}
           className={
             selectedCategory === "All"
-              ? "rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
-              : "rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800"
+              ? "rounded-lg border-2 border-indigo-400 bg-white px-3 py-2 text-sm font-semibold text-stone-950 shadow-sm"
+              : "rounded-lg border-2 border-transparent bg-white px-3 py-2 text-sm font-medium text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
           }
         >
           All
@@ -35,18 +36,12 @@ export function CategoryFilter({ categories }: Props) {
           const isSelected = selectedCategory === category.name;
 
           return (
-            <button
+            <CategoryButton
               key={category.id}
-              type="button"
+              category={category}
+              isSelected={isSelected}
               onClick={() => dispatch(setSelectedCategory(category.name))}
-              className={
-                isSelected
-                  ? "rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
-                  : "rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800"
-              }
-            >
-              {category.name}
-            </button>
+            />
           );
         })}
       </div>

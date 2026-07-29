@@ -9,25 +9,31 @@ export function ViewSwitch() {
   const selectedView = useAppSelector((state) => state.ui.selectedView);
 
   return (
-    <div className="mb-6 inline-flex rounded-md bg-white p-1 shadow-sm">
-      {views.map((view) => {
-        const isSelected = selectedView === view;
+    <div className="relative flex overflow-hidden rounded-full bg-white">
+      <div
+        className={`absolute inset-0 w-1/3 rounded-full bg-indigo-400 transition-transform duration-300 ${
+          selectedView === "day"
+            ? "translate-x-0"
+            : selectedView === "week"
+              ? "translate-x-full"
+              : "translate-x-[200%]"
+        }`}
+      />
 
-        return (
-          <button
-            key={view}
-            type="button"
-            onClick={() => dispatch(setSelectedView(view))}
-            className={
-              isSelected
-                ? "rounded px-3 py-1.5 text-sm font-medium bg-gray-900 text-white"
-                : "rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
-            }
-          >
-            {view}
-          </button>
-        );
-      })}
+      {views.map((view) => (
+        <button
+          key={view}
+          type="button"
+          onClick={() => dispatch(setSelectedView(view))}
+          className={
+            selectedView === view
+              ? "relative z-10 flex w-1/3 items-center justify-center px-5 py-2 text-sm capitalize text-white"
+              : "relative z-10 flex w-1/3 items-center justify-center px-5 py-2 text-sm capitalize text-gray-500 hover:text-indigo-500"
+          }
+        >
+          {view}
+        </button>
+      ))}
     </div>
   );
 }

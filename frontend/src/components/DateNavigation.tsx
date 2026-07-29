@@ -18,26 +18,40 @@ export function DateNavigation() {
   const isNextDisabled = isDateInFuture(nextDate) || nextDate > getTodayDateOnly();
 
   return (
-    <div className="mb-6 flex items-center gap-3">
+    <div className="flex items-center gap-4">
       <button
         type="button"
         onClick={() => dispatch(setSelectedDate(previousDate))}
-        className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200"
+        aria-label="Previous period"
+        title="Previous"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent bg-white text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
       >
-        Previous
+        <img
+          src="/ui-icons/arrow-left.svg"
+          alt=""
+          aria-hidden="true"
+          className="h-3.5 w-3.5"
+        />
       </button>
 
-      <div className="min-w-48 text-center text-sm font-medium text-gray-800">
+      <span className="whitespace-nowrap text-sm font-medium text-stone-800">
         {formatRangeLabel(selectedDate, selectedView)}
-      </div>
+      </span>
 
       <button
         type="button"
         disabled={isNextDisabled}
         onClick={() => dispatch(setSelectedDate(nextDate))}
-        className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-gray-200 disabled:cursor-not-allowed disabled:opacity-40"
+        aria-label="Next period"
+        title="Next"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent bg-white text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-35"
       >
-        Next
+        <img
+          src="/ui-icons/arrow-right.svg"
+          alt=""
+          aria-hidden="true"
+          className="h-3.5 w-3.5"
+        />
       </button>
     </div>
   );

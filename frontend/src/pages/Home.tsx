@@ -7,7 +7,12 @@ import { CategoryFilter } from "../components/CategoryFilter";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
 import { useGetHabitsQuery } from "../features/habits/habitsApi";
 import { CreateHabitModal } from "../components/CreateHabitModal";
-import { openCreateHabitModal } from "../features/ui/uiSlice";
+import {
+  openCreateHabitModal,
+  setSelectedCategory,
+  setSelectedDate,
+  setSelectedView,
+} from "../features/ui/uiSlice";
 import { EditHabitModal } from "../components/EditHabitModal";
 import { DeleteHabitModal } from "../components/DeleteHabitModal";
 import { getApiErrorMessage } from "../utils/apiError";
@@ -25,6 +30,8 @@ export function Home() {
   const selectedCategory = useAppSelector(
     (state) => state.ui.selectedCategory
   );
+  const selectedDate = useAppSelector((state) => state.ui.selectedDate);
+  const selectedView = useAppSelector((state) => state.ui.selectedView);
   const activeModal = useAppSelector((state) => state.ui.activeModal);
   const selectedHabitId = useAppSelector((state) => state.ui.selectedHabitId);
 
@@ -85,16 +92,27 @@ export function Home() {
         <section className="mb-6 space-y-6">
           <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-2">
             <div className="flex w-full justify-center">
-              <ViewSwitch />
+              <ViewSwitch
+                selectedView={selectedView}
+                onSelectedViewChange={(view) => dispatch(setSelectedView(view))}
+              />
             </div>
 
             <div className="flex w-full justify-center">
-              <DateNavigation />
+              <DateNavigation
+                selectedDate={selectedDate}
+                selectedView={selectedView}
+                onSelectedDateChange={(date) => dispatch(setSelectedDate(date))}
+              />
             </div>
           </div>
 
           {!habitsLoading && !habitsError && (
-            <CompletionSummary habits={filteredHabits} />
+            <CompletionSummary
+              habits={filteredHabits}
+              selectedDate={selectedDate}
+              selectedView={selectedView}
+            />
           )}
         </section>
 
@@ -116,7 +134,13 @@ export function Home() {
         )}
 
         {!categoriesLoading && !categoriesError && (
-          <CategoryFilter categories={categories} />
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectedCategoryChange={(category) =>
+              dispatch(setSelectedCategory(category))
+            }
+          />
         )}
 
         <section>

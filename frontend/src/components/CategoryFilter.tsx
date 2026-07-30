@@ -1,18 +1,17 @@
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { setSelectedCategory } from "../features/ui/uiSlice";
 import type { Category } from "../types/category";
 import { CategoryButton } from "./CategoryButton";
 
 type Props = {
   categories: Category[];
+  selectedCategory: string;
+  onSelectedCategoryChange: (category: string) => void;
 };
 
-export function CategoryFilter({ categories }: Props) {
-  const dispatch = useAppDispatch();
-  const selectedCategory = useAppSelector(
-    (state) => state.ui.selectedCategory
-  );
-
+export function CategoryFilter({
+  categories,
+  selectedCategory,
+  onSelectedCategoryChange,
+}: Props) {
   return (
     <section className="mb-6 w-full max-w-5xl">
       <h2 className="font-semibold text-stone-950 mb-4">
@@ -22,7 +21,7 @@ export function CategoryFilter({ categories }: Props) {
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => dispatch(setSelectedCategory("All"))}
+          onClick={() => onSelectedCategoryChange("All")}
           className={
             selectedCategory === "All"
               ? "rounded-lg border-2 border-indigo-400 bg-white px-3 py-2 text-sm font-semibold text-stone-950 shadow-sm"
@@ -40,7 +39,7 @@ export function CategoryFilter({ categories }: Props) {
               key={category.id}
               category={category}
               isSelected={isSelected}
-              onClick={() => dispatch(setSelectedCategory(category.name))}
+              onClick={() => onSelectedCategoryChange(category.name)}
             />
           );
         })}

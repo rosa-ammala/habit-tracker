@@ -1,13 +1,13 @@
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { setSelectedView } from "../features/ui/uiSlice";
 import type { View } from "../types/view";
 
 const views: View[] = ["day", "week", "month"];
 
-export function ViewSwitch() {
-  const dispatch = useAppDispatch();
-  const selectedView = useAppSelector((state) => state.ui.selectedView);
+type Props = {
+  selectedView: View;
+  onSelectedViewChange: (view: View) => void;
+};
 
+export function ViewSwitch({ selectedView, onSelectedViewChange }: Props) {
   return (
     <div className="relative flex overflow-hidden rounded-full bg-white">
       <div
@@ -24,7 +24,7 @@ export function ViewSwitch() {
         <button
           key={view}
           type="button"
-          onClick={() => dispatch(setSelectedView(view))}
+          onClick={() => onSelectedViewChange(view)}
           className={
             selectedView === view
               ? "relative z-10 flex w-1/3 items-center justify-center px-5 py-2 text-sm capitalize text-white"

@@ -1,16 +1,19 @@
-import { useAppSelector } from "../app/hooks";
 import type { Habit } from "../types/habit";
+import type { View } from "../types/view";
 import { getCompletionDatesForView } from "../utils/date";
 import { getCompletionStats } from "../utils/habitStats";
 
 type Props = {
   habits: Habit[];
+  selectedDate: string;
+  selectedView: View;
 };
 
-export function CompletionSummary({ habits }: Props) {
-  const selectedDate = useAppSelector((state) => state.ui.selectedDate);
-  const selectedView = useAppSelector((state) => state.ui.selectedView);
-
+export function CompletionSummary({
+  habits,
+  selectedDate,
+  selectedView,
+}: Props) {
   const dates = getCompletionDatesForView(selectedDate, selectedView);
   const { completed, total, percentage } = getCompletionStats(habits, dates);
   const radius = 34;

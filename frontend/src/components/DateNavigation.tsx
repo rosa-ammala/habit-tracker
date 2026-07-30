@@ -1,6 +1,5 @@
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { setSelectedDate } from "../features/ui/uiSlice";
 import { IconButton } from "./IconButton";
+import type { View } from "../types/view";
 import {
   formatRangeLabel,
   getNextDate,
@@ -9,11 +8,17 @@ import {
   isDateInFuture,
 } from "../utils/date";
 
-export function DateNavigation() {
-  const dispatch = useAppDispatch();
-  const selectedDate = useAppSelector((state) => state.ui.selectedDate);
-  const selectedView = useAppSelector((state) => state.ui.selectedView);
+type Props = {
+  selectedDate: string;
+  selectedView: View;
+  onSelectedDateChange: (date: string) => void;
+};
 
+export function DateNavigation({
+  selectedDate,
+  selectedView,
+  onSelectedDateChange,
+}: Props) {
   const previousDate = getPreviousDate(selectedDate, selectedView);
   const nextDate = getNextDate(selectedDate, selectedView);
   const isNextDisabled = isDateInFuture(nextDate) || nextDate > getTodayDateOnly();
@@ -23,7 +28,7 @@ export function DateNavigation() {
       <IconButton
         icon="/ui-icons/arrow-left.svg"
         title="Previous period"
-        onClick={() => dispatch(setSelectedDate(previousDate))}
+        onClick={() => onSelectedDateChange(previousDate)}
       />
 
       <span className="whitespace-nowrap text-sm font-medium text-stone-800">
@@ -34,7 +39,7 @@ export function DateNavigation() {
         icon="/ui-icons/arrow-right.svg"
         title="Next period"
         disabled={isNextDisabled}
-        onClick={() => dispatch(setSelectedDate(nextDate))}
+        onClick={() => onSelectedDateChange(nextDate)}
       />
     </div>
   );

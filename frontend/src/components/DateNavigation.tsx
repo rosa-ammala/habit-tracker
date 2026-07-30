@@ -1,5 +1,6 @@
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { setSelectedDate } from "../features/ui/uiSlice";
+import { IconButton } from "./IconButton";
 import {
   formatRangeLabel,
   getNextDate,
@@ -19,40 +20,22 @@ export function DateNavigation() {
 
   return (
     <div className="flex items-center gap-4">
-      <button
-        type="button"
+      <IconButton
+        icon="/ui-icons/arrow-left.svg"
+        title="Previous period"
         onClick={() => dispatch(setSelectedDate(previousDate))}
-        aria-label="Previous period"
-        title="Previous"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent bg-white text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
-      >
-        <img
-          src="/ui-icons/arrow-left.svg"
-          alt=""
-          aria-hidden="true"
-          className="h-3.5 w-3.5"
-        />
-      </button>
+      />
 
       <span className="whitespace-nowrap text-sm font-medium text-stone-800">
         {formatRangeLabel(selectedDate, selectedView)}
       </span>
 
-      <button
-        type="button"
+      <IconButton
+        icon="/ui-icons/arrow-right.svg"
+        title="Next period"
         disabled={isNextDisabled}
         onClick={() => dispatch(setSelectedDate(nextDate))}
-        aria-label="Next period"
-        title="Next"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent bg-white text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-35"
-      >
-        <img
-          src="/ui-icons/arrow-right.svg"
-          alt=""
-          aria-hidden="true"
-          className="h-3.5 w-3.5"
-        />
-      </button>
+      />
     </div>
   );
 }

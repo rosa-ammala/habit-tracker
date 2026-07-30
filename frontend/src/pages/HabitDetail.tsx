@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { DeleteHabitModal } from "../components/DeleteHabitModal";
 import { DayCell } from "../components/DayCell";
 import { EditHabitModal } from "../components/EditHabitModal";
+import { IconButton } from "../components/IconButton";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
 import { useGetHabitByIdQuery } from "../features/habits/habitsApi";
 import { useToggleHabitLog } from "../features/habits/useToggleHabitLog";
@@ -103,60 +104,45 @@ export function HabitDetail() {
   return (
     <main className="min-h-screen bg-indigo-100 px-4 py-5 text-stone-950 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
+
+        {/* Actions - back, edit and delete */}
         <div className="mb-6 flex items-center justify-between gap-4">
-          <Link
+          <IconButton
+            as="link"
             to="/"
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-transparent bg-white px-3 py-2 text-sm font-semibold text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
-          >
-            <img
-              src="/ui-icons/arrow-left.svg"
-              alt=""
-              aria-hidden="true"
-              className="mr-2 h-4 w-4 shrink-0"
-            />
-            Back
-          </Link>
+            icon="/ui-icons/arrow-left.svg"
+            title="Back"
+            showTitle
+          />
 
           <div className="flex gap-2">
-            <button
-              type="button"
+            <IconButton
+              icon="/ui-icons/edit.svg"
+              title="Edit"
+              showTitle
               onClick={() => dispatch(openEditHabitModal(selectedHabit.id))}
               disabled={categoriesLoading || categoriesError}
-              title={
+              tooltip={
                 categoriesError
                   ? getApiErrorMessage(
                       categoriesQueryError,
                       "Could not load categories."
-                )
+                    )
                   : undefined
               }
-              className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-transparent bg-white px-3 py-2 text-sm font-semibold text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 disabled:opacity-50"
-            >
-              <img
-                src="/ui-icons/edit.svg"
-                alt=""
-                aria-hidden="true"
-                className="mr-2 h-4 w-4 shrink-0"
-              />
-              Edit
-            </button>
+            />
 
-            <button
-              type="button"
+            <IconButton
+              icon="/ui-icons/delete.svg"
+              title="Delete"
+              showTitle
+              variant="danger"
               onClick={() => dispatch(openDeleteHabitModal(selectedHabit.id))}
-              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 ring-1 ring-rose-100 hover:bg-rose-100"
-            >
-              <img
-                src="/ui-icons/delete.svg"
-                alt=""
-                aria-hidden="true"
-                className="mr-2 h-4 w-4 shrink-0"
-              />
-              Delete
-            </button>
+            />
           </div>
         </div>
 
+        {/* Habit Details */}
         <section className="mb-6 rounded-lg border border-white/70 bg-white/82 p-5 shadow-sm shadow-stone-200/70 backdrop-blur sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -212,44 +198,27 @@ export function HabitDetail() {
           </div>
         </section>
 
+        {/* Year Overview */}
         <section>
           <div className="mb-5 flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => setVisibleYear((year) => year - 1)}
-              aria-label="Previous year"
+            <IconButton
+              icon="/ui-icons/arrow-left.svg"
               title="Previous year"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent bg-white text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
-            >
-              <img
-                src="/ui-icons/arrow-left.svg"
-                alt=""
-                aria-hidden="true"
-                className="h-3.5 w-3.5"
-              />
-            </button>
+              onClick={() => setVisibleYear((year) => year - 1)}
+            />
 
             <h2 className="px-5 py-2 text-sm font-semibold text-stone-800">
               {visibleYear}
             </h2>
 
-            <button
-              type="button"
+            <IconButton
+              icon="/ui-icons/arrow-right.svg"
+              title="Next year"
               onClick={() =>
                 setVisibleYear((year) => Math.min(year + 1, currentYear))
               }
               disabled={isNextYearDisabled}
-              aria-label="Next year"
-              title="Next year"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent bg-white text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-35"
-            >
-              <img
-                src="/ui-icons/arrow-right.svg"
-                alt=""
-                aria-hidden="true"
-                className="h-3.5 w-3.5"
-              />
-            </button>
+            />
           </div>
 
           {logErrorMessage && (

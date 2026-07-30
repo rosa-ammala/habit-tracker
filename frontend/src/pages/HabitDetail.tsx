@@ -5,11 +5,8 @@ import { DeleteHabitModal } from "../components/DeleteHabitModal";
 import { DayCell } from "../components/DayCell";
 import { EditHabitModal } from "../components/EditHabitModal";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
-import {
-  useAddHabitLogMutation,
-  useDeleteHabitLogMutation,
-  useGetHabitByIdQuery,
-} from "../features/habits/habitsApi";
+import { useGetHabitByIdQuery } from "../features/habits/habitsApi";
+import { useToggleHabitLog } from "../features/habits/useToggleHabitLog";
 import {
   openDeleteHabitModal,
   openEditHabitModal,
@@ -32,7 +29,7 @@ export function HabitDetail() {
   const habitId = Number(id);
   const currentYear = new Date().getFullYear();
   const [visibleYear, setVisibleYear] = useState(currentYear);
-  const [logErrorMessage, setLogErrorMessage] = useState<string | null>(null);
+  const { logErrorMessage, toggleHabitLog } = useToggleHabitLog();
   const today = getTodayDateOnly();
   const activeModal = useAppSelector((state) => state.ui.activeModal);
   const selectedHabitId = useAppSelector((state) => state.ui.selectedHabitId);
@@ -43,9 +40,6 @@ export function HabitDetail() {
     isError: categoriesError,
     error: categoriesQueryError,
   } = useGetCategoriesQuery();
-
-  const [addHabitLog] = useAddHabitLogMutation();
-  const [deleteHabitLog] = useDeleteHabitLogMutation();
 
   const {
     data: habit,
@@ -105,35 +99,6 @@ export function HabitDetail() {
   const isDeleteModalOpen =
     activeModal === "delete" && selectedHabitId === selectedHabit.id;
   const isNextYearDisabled = visibleYear >= currentYear;
-
-  async function handleToggleDate(date: string, nextChecked: boolean) {
-    if (isDateInFuture(date)) {
-      return;
-    }
-
-    try {
-      setLogErrorMessage(null);
-
-      if (nextChecked) {
-        await addHabitLog({
-          habitId: selectedHabit.id,
-          date,
-        }).unwrap();
-
-        return;
-      }
-
-      await deleteHabitLog({
-        habitId: selectedHabit.id,
-        date,
-      }).unwrap();
-    } catch (error) {
-      setLogErrorMessage(
-        getApiErrorMessage(error, "Could not update habit log.")
-      );
-      throw error;
-    }
-  }
 
   return (
     <main className="min-h-screen bg-indigo-100 px-4 py-5 text-stone-950 sm:px-6 lg:px-8">
@@ -353,7 +318,11 @@ export function HabitDetail() {
                           showNumber
                           size="sm"
                           onClick={(nextChecked) =>
-                            handleToggleDate(date, nextChecked)
+                            toggleHabitLog({
+                              habitId: selectedHabit.id,
+                              date,
+                              nextChecked,
+                            })
                           }
                         />
                       );

@@ -1,10 +1,6 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../app/hooks";
-import {
-  useAddHabitLogMutation,
-  useDeleteHabitLogMutation,
-} from "../features/habits/habitsApi";
+import { useToggleHabitLog } from "../features/habits/useToggleHabitLog";
 import type { Habit } from "../types/habit";
 import {
   getDatesForView,
@@ -12,7 +8,6 @@ import {
   isDateInFuture,
   isSameMonth,
 } from "../utils/date";
-import { getApiErrorMessage } from "../utils/apiError";
 import { DayCell } from "./DayCell";
 
 type Props = {
@@ -25,45 +20,9 @@ export function HabitList({ habits }: Props) {
   const today = getTodayDateOnly();
   const selectedView = useAppSelector((state) => state.ui.selectedView);
   const selectedDate = useAppSelector((state) => state.ui.selectedDate);
-  const [logErrorMessage, setLogErrorMessage] = useState<string | null>(null);
+  const { logErrorMessage, toggleHabitLog } = useToggleHabitLog();
 
   const { dates, month, year } = getDatesForView(selectedDate, selectedView);
-
-  const [addHabitLog] = useAddHabitLogMutation();
-  const [deleteHabitLog] = useDeleteHabitLogMutation();
-
-  async function handleToggleDate(
-    habit: Habit,
-    date: string,
-    nextChecked: boolean
-  ) {
-    if (isDateInFuture(date)) {
-      return;
-    }
-
-    try {
-      setLogErrorMessage(null);
-
-      if (nextChecked) {
-        await addHabitLog({
-          habitId: habit.id,
-          date,
-        }).unwrap();
-
-        return;
-      }
-
-      await deleteHabitLog({
-        habitId: habit.id,
-        date,
-      }).unwrap();
-    } catch (error) {
-      setLogErrorMessage(
-        getApiErrorMessage(error, "Could not update habit log.")
-      );
-      throw error;
-    }
-  }
 
   if (habits.length === 0) {
     return (
@@ -177,7 +136,11 @@ export function HabitList({ habits }: Props) {
                           isDimmed={false}
                           showNumber={selectedView !== "day"}
                           onClick={(nextChecked) =>
-                            handleToggleDate(habit, date, nextChecked)
+                            toggleHabitLog({
+                              habitId: habit.id,
+                              date,
+                              nextChecked,
+                            })
                           }
                         />
                       );

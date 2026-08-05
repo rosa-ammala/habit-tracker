@@ -31,6 +31,7 @@ export function DayCell({
   const pointerHandledRef = useRef(false);
   const isDisabled = isFuture || isPending || isLocalPending;
   const visualChecked = optimisticChecked ?? isChecked;
+  const ariaLabel = getAriaLabel(date, visualChecked, isToday, isFuture);
 
   function handleActivate() {
     if (isDisabled) {
@@ -82,6 +83,7 @@ export function DayCell({
       type="button"
       disabled={isDisabled}
       title={date}
+      aria-label={ariaLabel}
       onPointerDown={handlePointerDown}
       onClick={handleClick}
       className={[
@@ -104,4 +106,26 @@ export function DayCell({
 
 function getCellLabel(date: string) {
   return Number(date.slice(-2));
+}
+
+function getAriaLabel(
+  date: string,
+  isChecked: boolean,
+  isToday: boolean,
+  isFuture: boolean
+) {
+  const parts = [
+    isChecked ? "Completed" : "Not completed",
+    date,
+  ];
+
+  if (isToday) {
+    parts.push("today");
+  }
+
+  if (isFuture) {
+    parts.push("future date");
+  }
+
+  return parts.join(", ");
 }

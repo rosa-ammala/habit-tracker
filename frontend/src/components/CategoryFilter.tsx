@@ -1,5 +1,5 @@
 import type { Category } from "../types/category";
-import { CategoryButton } from "./CategoryButton";
+import { CategoryButton } from "./buttons/CategoryButton";
 
 type Props = {
   categories: Category[];

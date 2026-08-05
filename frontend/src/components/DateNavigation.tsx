@@ -1,4 +1,4 @@
-import { IconButton } from "./IconButton";
+import { IconButton } from "./buttons/IconButton";
 import type { View } from "../types/view";
 import {
   formatRangeLabel,

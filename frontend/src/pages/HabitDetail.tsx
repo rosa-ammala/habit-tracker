@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { DeleteHabitModal } from "../components/DeleteHabitModal";
 import { DayCell } from "../components/DayCell";
 import { EditHabitModal } from "../components/EditHabitModal";
-import { IconButton } from "../components/IconButton";
+import { IconButton } from "../components/buttons/IconButton";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
 import { useGetHabitByIdQuery } from "../features/habits/habitsApi";
 import { useToggleHabitLog } from "../features/habits/useToggleHabitLog";

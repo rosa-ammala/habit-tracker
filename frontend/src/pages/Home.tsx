@@ -15,6 +15,7 @@ import {
 } from "../features/ui/uiSlice";
 import { EditHabitModal } from "../components/EditHabitModal";
 import { DeleteHabitModal } from "../components/DeleteHabitModal";
+import { IconButton } from "../components/buttons/IconButton";
 import { getApiErrorMessage } from "../utils/apiError";
 
 export function Home() {
@@ -73,20 +74,14 @@ export function Home() {
             </p>
           </div>
 
-          <button
-            type="button"
+          <IconButton
+            icon="/ui-icons/add.svg"
+            title="Add habit"
+            showTitle
+            variant="primary"
             onClick={() => dispatch(openCreateHabitModal())}
             disabled={categoriesLoading || categoriesError}
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border-2 border-transparent bg-indigo-400 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-500/20 hover:border-gray-300 hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-stone-300"
-          >
-            <img
-              src="/ui-icons/add.svg"
-              alt=""
-              aria-hidden="true"
-              className="mr-2 h-5 w-5 shrink-0"
-            />
-            Add habit
-          </button>
+          />
         </header>
 
         <section className="mb-6 space-y-6">

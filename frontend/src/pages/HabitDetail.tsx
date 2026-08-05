@@ -13,6 +13,7 @@ import {
   openEditHabitModal,
 } from "../features/ui/uiSlice";
 import {
+  DISPLAY_DATE_LOCALE,
   getDatesForView,
   getTodayDateOnly,
   isDateInFuture,
@@ -235,10 +236,11 @@ export function HabitDetail() {
                 month: calendarMonth,
                 year: calendarYear,
               } = getDatesForView(monthDate, "month");
-              const monthName = new Date(visibleYear, month, 1).toLocaleDateString(
-                "en-GB",
-                { month: "long" }
-              );
+              const monthName = new Date(
+                visibleYear,
+                month,
+                1
+              ).toLocaleDateString(DISPLAY_DATE_LOCALE, { month: "long" });
 
               return (
                 <div

@@ -1,8 +1,12 @@
 import type { View } from "../types/view";
+import { getUserTimezone } from "./timezone";
+
+export const DATE_ONLY_LOCALE = "en-CA"; // Use "en-CA" for ISO 8601 date format (YYYY-MM-DD)
+export const DISPLAY_DATE_LOCALE = "en-GB"; // Use "en-GB" for display date format (DD/MM/YYYY)
 
 export function getTodayDateOnly() {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  const formatter = new Intl.DateTimeFormat(DATE_ONLY_LOCALE, {
+    timeZone: getUserTimezone(),
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -17,8 +21,8 @@ export function parseDateOnly(date: string) {
 }
 
 export function toDateOnly(date: Date) {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  const formatter = new Intl.DateTimeFormat(DATE_ONLY_LOCALE, {
+    timeZone: getUserTimezone(),
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -98,7 +102,7 @@ export function formatRangeLabel(date: string, view: View) {
   const parsed = parseDateOnly(date);
 
   if (view === "day") {
-    return parsed.toLocaleDateString("en-GB", {
+    return parsed.toLocaleDateString(DISPLAY_DATE_LOCALE, {
       weekday: "short",
       day: "numeric",
       month: "short",
@@ -110,17 +114,17 @@ export function formatRangeLabel(date: string, view: View) {
     const start = parseDateOnly(getStartOfWeek(date));
     const end = parseDateOnly(addDays(toDateOnly(start), 6));
 
-    return `${start.toLocaleDateString("en-GB", {
+    return `${start.toLocaleDateString(DISPLAY_DATE_LOCALE, {
       day: "numeric",
       month: "short",
-    })} - ${end.toLocaleDateString("en-GB", {
+    })} - ${end.toLocaleDateString(DISPLAY_DATE_LOCALE, {
       day: "numeric",
       month: "short",
       year: "numeric",
     })}`;
   }
 
-  return parsed.toLocaleDateString("en-GB", {
+  return parsed.toLocaleDateString(DISPLAY_DATE_LOCALE, {
     month: "long",
     year: "numeric",
   });

@@ -271,7 +271,7 @@ export function HabitDetail() {
                           <div
                             key={date}
                             aria-hidden="true"
-                            className="h-7 w-7"
+                            className="h-8 w-8 min-h-[32px] min-w-[32px]"
                           />
                         );
                       }
@@ -285,7 +285,6 @@ export function HabitDetail() {
                           isFuture={isFuture}
                           isDimmed={false}
                           showNumber
-                          size="sm"
                           onClick={(nextChecked) =>
                             toggleHabitLog({
                               habitId: selectedHabit.id,

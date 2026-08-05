@@ -9,7 +9,7 @@ import { useGetHabitsQuery } from "../features/habits/habitsApi";
 import { CreateHabitModal } from "../components/CreateHabitModal";
 import {
   openCreateHabitModal,
-  setSelectedCategory,
+  setSelectedCategoryId,
   setSelectedDate,
   setSelectedView,
 } from "../features/ui/uiSlice";
@@ -27,8 +27,8 @@ export function Home() {
     error: categoriesQueryError,
   } = useGetCategoriesQuery();
 
-  const selectedCategory = useAppSelector(
-    (state) => state.ui.selectedCategory
+  const selectedCategoryId = useAppSelector(
+    (state) => state.ui.selectedCategoryId
   );
   const selectedDate = useAppSelector((state) => state.ui.selectedDate);
   const selectedView = useAppSelector((state) => state.ui.selectedView);
@@ -43,9 +43,9 @@ export function Home() {
   } = useGetHabitsQuery();
 
   const filteredHabits =
-    selectedCategory === "All"
+    selectedCategoryId === null
       ? habits
-      : habits.filter((habit) => habit.category.name === selectedCategory);
+      : habits.filter((habit) => habit.categoryId === selectedCategoryId);
 
   const editingHabit =
     activeModal !== "edit" || selectedHabitId === null
@@ -136,9 +136,9 @@ export function Home() {
         {!categoriesLoading && !categoriesError && (
           <CategoryFilter
             categories={categories}
-            selectedCategory={selectedCategory}
-            onSelectedCategoryChange={(category) =>
-              dispatch(setSelectedCategory(category))
+            selectedCategoryId={selectedCategoryId}
+            onSelectedCategoryChange={(categoryId) =>
+              dispatch(setSelectedCategoryId(categoryId))
             }
           />
         )}

@@ -3,13 +3,13 @@ import { CategoryButton } from "./CategoryButton";
 
 type Props = {
   categories: Category[];
-  selectedCategory: string;
-  onSelectedCategoryChange: (category: string) => void;
+  selectedCategoryId: number | null;
+  onSelectedCategoryChange: (categoryId: number | null) => void;
 };
 
 export function CategoryFilter({
   categories,
-  selectedCategory,
+  selectedCategoryId,
   onSelectedCategoryChange,
 }: Props) {
   return (
@@ -21,9 +21,9 @@ export function CategoryFilter({
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => onSelectedCategoryChange("All")}
+          onClick={() => onSelectedCategoryChange(null)}
           className={
-            selectedCategory === "All"
+            selectedCategoryId === null
               ? "rounded-lg border-2 border-indigo-400 bg-white px-3 py-2 text-sm font-semibold text-stone-950 shadow-sm"
               : "rounded-lg border-2 border-transparent bg-white px-3 py-2 text-sm font-medium text-stone-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50"
           }
@@ -32,14 +32,14 @@ export function CategoryFilter({
         </button>
 
         {categories.map((category) => {
-          const isSelected = selectedCategory === category.name;
+          const isSelected = selectedCategoryId === category.id;
 
           return (
             <CategoryButton
               key={category.id}
               category={category}
               isSelected={isSelected}
-              onClick={() => onSelectedCategoryChange(category.name)}
+              onClick={() => onSelectedCategoryChange(category.id)}
             />
           );
         })}

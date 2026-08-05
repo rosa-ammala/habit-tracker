@@ -37,7 +37,16 @@ export const habitsApi = apiSlice.injectEndpoints({
           timezone: getUserTimezone(),
         },
       }),
-      providesTags: ["Habits"],
+      providesTags: (result) =>
+        result
+          ? [
+              "Habits",
+              ...result.map((habit) => ({
+                type: "Habit" as const,
+                id: habit.id,
+              })),
+            ]
+          : ["Habits"],
     }),
 
     getHabitById: builder.query<Habit, number>({
@@ -81,7 +90,10 @@ export const habitsApi = apiSlice.injectEndpoints({
         url: `/habits/${habitId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Habits"],
+      invalidatesTags: (_result, _error, { habitId }) => [
+        "Habits",
+        { type: "Habit", id: habitId },
+      ],
     }),
 
     addHabitLog: builder.mutation<Habit, AddHabitLogRequest>({

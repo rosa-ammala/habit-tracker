@@ -1,6 +1,4 @@
-import type { View } from "../types/view";
-
-const views: View[] = ["day", "week", "month"];
+import { VIEWS, type View } from "../types/view";
 
 type Props = {
   selectedView: View;
@@ -20,7 +18,7 @@ export function ViewSwitch({ selectedView, onSelectedViewChange }: Props) {
         }`}
       />
 
-      {views.map((view) => (
+      {VIEWS.map((view) => (
         <button
           key={view}
           type="button"

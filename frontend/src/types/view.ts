@@ -1,1 +1,3 @@
-export type View = "day" | "week" | "month";
+export const VIEWS = ["day", "week", "month"] as const;
+
+export type View = (typeof VIEWS)[number];

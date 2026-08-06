@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { Category } from "../types/category";
 import { CategoryButton } from "./buttons/CategoryButton";
 import { Modal } from "./Modal";
@@ -26,6 +26,7 @@ export function HabitFormModal({
   onClose,
   onSubmit,
 }: Props) {
+  const titleInputId = useId();
   const [habitTitle, setHabitTitle] = useState(initialTitle);
   const [categoryId, setCategoryId] = useState<number | null>(
     initialCategoryId ?? null
@@ -59,10 +60,14 @@ export function HabitFormModal({
     <Modal title={title} isCloseDisabled={isLoading} onClose={handleClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1.5 block text-sm font-semibold text-stone-700">
+          <label
+            htmlFor={titleInputId}
+            className="mb-1.5 block text-sm font-semibold text-stone-700"
+          >
             Habit title
           </label>
           <input
+            id={titleInputId}
             value={habitTitle}
             onChange={(event) => setHabitTitle(event.target.value)}
             className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none focus:border-indigo-400 focus:ring-3 focus:ring-indigo-100"
@@ -104,7 +109,7 @@ export function HabitFormModal({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-transparent bg-indigo-400 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-500/20 hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-stone-300"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border-2 border-transparent bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-500/20 hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-stone-300"
           >
             {isLoading ? "Saving..." : submitLabel}
           </button>

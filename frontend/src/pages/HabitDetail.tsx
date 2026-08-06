@@ -147,7 +147,7 @@ export function HabitDetail() {
         <section className="mb-6 rounded-lg border border-white/70 bg-white/82 p-5 shadow-sm shadow-stone-200/70 backdrop-blur sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">
                 Year overview
               </p>
               <h1 className="mt-2 text-3xl font-semibold text-stone-950">
@@ -166,9 +166,9 @@ export function HabitDetail() {
 
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-lg bg-indigo-50 px-5 py-4 text-center ring-1 ring-indigo-100">
-                <p className="text-indigo-500">Current streak</p>
+                <p className="text-indigo-700">Current streak</p>
                 <div className="mt-1 flex items-center justify-center gap-1">
-                  <span className="text-2xl font-semibold leading-none text-indigo-500">
+                  <span className="text-2xl font-semibold leading-none text-indigo-700">
                     {selectedHabit.currentStreak}
                   </span>
                   <img
@@ -178,7 +178,7 @@ export function HabitDetail() {
                     className="h-5 w-5 shrink-0 translate-y-0.5"
                   />
                 </div>
-                <p className="text-indigo-500">days</p>
+                <p className="text-indigo-700">days</p>
               </div>
               <div className="rounded-lg bg-amber-50 px-5 py-4 text-center ring-1 ring-amber-100">
                 <p className="text-amber-700">Best streak</p>
@@ -251,7 +251,7 @@ export function HabitDetail() {
                     {monthName}
                   </h3>
 
-                  <div className="mb-2 grid grid-cols-7 justify-items-center gap-2 text-center text-xs font-medium text-stone-400">
+                  <div className="mb-2 grid grid-cols-7 justify-items-center gap-2 text-center text-xs font-medium text-stone-500">
                     {weekDays.map((day) => (
                       <div key={day}>{day}</div>
                     ))}

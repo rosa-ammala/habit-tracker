@@ -9,7 +9,7 @@ export function ViewSwitch({ selectedView, onSelectedViewChange }: Props) {
   return (
     <div className="relative flex overflow-hidden rounded-full bg-white">
       <div
-        className={`absolute inset-0 w-1/3 rounded-full bg-indigo-400 transition-transform duration-300 ${
+        className={`absolute inset-0 w-1/3 rounded-full bg-indigo-600 transition-transform duration-300 ${
           selectedView === "day"
             ? "translate-x-0"
             : selectedView === "week"

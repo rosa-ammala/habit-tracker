@@ -91,7 +91,7 @@ export function HabitList({ habits }: Props) {
 
                 <div className="min-w-0 pb-1">
                   {(selectedView === "week" || selectedView === "month") && (
-                    <div className="mb-2 grid grid-cols-7 justify-items-center gap-2 text-center text-xs font-medium text-stone-400">
+                    <div className="mb-2 grid grid-cols-7 justify-items-center gap-2 text-center text-xs font-medium text-stone-500">
                       {weekDays.map((day) => (
                         <div key={day}>{day}</div>
                       ))}

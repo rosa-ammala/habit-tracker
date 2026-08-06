@@ -2,6 +2,7 @@
   <h1> Habit Tracker </h1>
 
 ![](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![](https://img.shields.io/badge/Redux_Toolkit-764ABC?style=for-the-badge&logo=redux&logoColor=white)
 ![](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
@@ -9,6 +10,8 @@
 ![](https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white)
 ![](https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)
+![](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
+![](https://custom-icon-badges.demolab.com/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 
 <img src ="img/habit-tracker.png" width="80%">
 
@@ -16,8 +19,7 @@
 
 ## 💡 Overview
 
-Habit Tracker is a full-stack web application for tracking daily habits over different time ranges.  
-The application focuses on providing a clear and intuitive user experience while handling more complex logic behind the scenes, such as date consistency, navigation between time ranges, and preventing invalid user actions.
+Habit Tracker is a full-stack web application for tracking daily habits over different time ranges. The application focuses on providing a clear and intuitive user experience while handling more complex logic behind the scenes, such as date consistency, navigation between time ranges, and preventing invalid user actions.
 
 Users can track habits on a daily, weekly, and monthly level, as well as view a full-year overview for each habit. The system ensures that future dates cannot be interacted with, keeping the data consistent and realistic.
 
@@ -25,25 +27,34 @@ The project also emphasizes clean component structure, predictable state managem
 
 ## ✨ Features
 
-- Daily, weekly, and monthly habit tracking views  
-- Yearly overview for each habit (calendar-style)  
-- Category-based filtering  
-- Streak tracking  
-- Completion statistics with visual progress indicator  
-- Future dates are disabled (no navigation or logging into the future)  
-- Clean and responsive UI  
+- Create, edit, and delete habits
+- Daily, weekly, and monthly habit tracking views
+- Yearly overview for each habit (calendar-style)
+- Category-based filtering
+- Backend-calculated current and best streaks
+- Completion statistics with visual progress indicator
+- Future dates are disabled (no navigation or logging into the future)
+- Optimistic habit log updates for immediate UI feedback
+- Clean and responsive UI
 
 ## 🛠️ Tech Stack
 
 - **React** – Frontend library for building the user interface  
 - **TypeScript** – Type safety and better developer experience  
+- **Redux Toolkit + RTK Query** – UI state management, API fetching, caching, and optimistic habit log updates
 - **Tailwind CSS** – Utility-first styling  
 - **Vite** – Fast development build tool
 - **Node.js** – Runtime environment  
 - **Express.js** – Backend framework for API handling  
 - **Prisma** – ORM for database access  
 - **MySQL** – Relational database for storing habits, logs and categories
-- **ChatGPT** - AI-assisted support for brainstorming, debugging, code generation, refactoring, and documentation. All code was reviewed, tested, and finalized by the author.
+- **Codex/ChatGPT** - AI-assisted support for brainstorming, debugging, code generation, refactoring, and documentation. All code was reviewed, tested, and finalized by the author.
+
+Testing:
+- **Vitest** – Unit and integration-style tests for frontend utilities, Redux state, RTK Query cache behavior, and backend logic
+- **Supertest** – Backend API route testing against the Express app
+- **Testing Library** – React component tests focused on user-visible behavior and interactions
+- **Playwright + axe** – Browser smoke tests and accessibility checks for the main user flows
 
 ## 📖 Sources
 
@@ -55,9 +66,8 @@ To get a local copy of this project up and running, follow these steps.
 
 ### 🚀 Prerequisites
 
-- **Node.js** (v16.x or higher) and **npm**.
-- **Npm** 
-- **MySQL** Latest version.
+- **Node.js** (v20 or higher) and **npm**
+- **MySQL** installed and running locally
 
 ## 🛠️ Installation
 
@@ -70,9 +80,17 @@ To get a local copy of this project up and running, follow these steps.
 
 2. **Install dependencies:**
 
-   Using Npm:
+   Install backend dependencies:
 
    ```bash
+   cd backend
+   npm install
+   ```
+
+   Install frontend dependencies:
+
+   ```bash
+   cd ../frontend
    npm install
    ```
 
@@ -98,56 +116,33 @@ To get a local copy of this project up and running, follow these steps.
    Ensure your database is running and you're inside the backend folder:
 
    ```bash
+   cd ../backend
    npx prisma migrate dev
    ```
 
-6. **Creating Categories**
-For full user experience the application requires categories to be created manually before use.
+6. **Seed categories**
 
-1. Install **Thunder Client** extension in VS Code  
-2. Open Thunder Client  
-3. Create a new request:
-- **Method:** POST  
-- **URL:** http://localhost:3000/api/categories
+   For the full user experience, seed the default categories before using the app.
+   Ensure you're inside the backend folder:
 
-  ```json
-   Create the following categories separately:
-
-   {
-     "name": "Health",
-     "icon": "health.svg"
-   }
-
-   {
-     "name": "Fitness",
-     "icon": "dumbbell.svg"
-   }
-
-   {
-     "name": "Learning",
-     "icon": "book.svg"
-   }
-
-   {
-     "name": "Hobby",
-     "icon": "hobby.svg"
-   }
-
-   {
-     "name": "Finance",
-     "icon": "money.svg"
-   }
-
-   {
-     "name": "Fitness",
-     "icon": "dumbbell.svg"
-   }
+   ```bash
+   npm run seed
    ```
 
 7. **Start the development server**
-Run frontend and backend in separate terminals:
+  Run frontend and backend in separate terminals.
+
+  Backend:
 
    ```bash
+   cd backend
+   npm run dev
+   ```
+
+  Frontend:
+
+   ```bash
+   cd frontend
    npm run dev
    ```
 
@@ -163,15 +158,19 @@ Run frontend and backend in separate terminals:
 
 Current limitations and areas under improvement:
 
-- Habit edits do not update immediately without a page refresh
-- View switch interaction issues on smaller screens when a modal is open
-- User validation and error handling are limited in edge cases
-- Occasional misclicks when interacting with day cells may trigger unintended navigation to the habit detail view
+- The app does not yet include user accounts or authentication
+- Categories are seeded by the backend instead of being managed through the UI
+- Habit data is currently fetched as full habit history instead of date-range based API queries
+- Form validation and error handling are intentionally lightweight for the MVP
 
 ## 💡 Future Development
 
 Potential future improvements and development ideas:
 
-- Users can create and manage their own categories
-- Habit analytics and insights (e.g. trends, completion rates over time)
-- Improved mobile UX and layout optimizations
+- User accounts and authentication
+- User-owned habits and categories
+- Category management in the UI
+- Habit schedules and habit goals
+- Analytics and insights, such as trends and completion rates over time
+- Date-range based habit queries for larger log histories
+- Continued mobile UX and accessibility improvements

@@ -13,8 +13,6 @@ import {
   setSelectedDate,
   setSelectedView,
 } from "../features/ui/uiSlice";
-import { EditHabitModal } from "../components/EditHabitModal";
-import { DeleteHabitModal } from "../components/DeleteHabitModal";
 import { IconButton } from "../components/buttons/IconButton";
 import { getApiErrorMessage } from "../utils/apiError";
 
@@ -28,14 +26,6 @@ export function Home() {
     error: categoriesQueryError,
   } = useGetCategoriesQuery();
 
-  const selectedCategoryId = useAppSelector(
-    (state) => state.ui.selectedCategoryId
-  );
-  const selectedDate = useAppSelector((state) => state.ui.selectedDate);
-  const selectedView = useAppSelector((state) => state.ui.selectedView);
-  const activeModal = useAppSelector((state) => state.ui.activeModal);
-  const selectedHabitId = useAppSelector((state) => state.ui.selectedHabitId);
-
   const {
     data: habits = [],
     isLoading: habitsLoading,
@@ -43,20 +33,15 @@ export function Home() {
     error: habitsQueryError,
   } = useGetHabitsQuery();
 
+  const selectedCategoryId = useAppSelector((state) => state.ui.selectedCategoryId);
+  const selectedDate = useAppSelector((state) => state.ui.selectedDate);
+  const selectedView = useAppSelector((state) => state.ui.selectedView);
+  const activeModal = useAppSelector((state) => state.ui.activeModal);
+
   const filteredHabits =
     selectedCategoryId === null
       ? habits
       : habits.filter((habit) => habit.categoryId === selectedCategoryId);
-
-  const editingHabit =
-    activeModal !== "edit" || selectedHabitId === null
-      ? undefined
-      : habits.find((habit) => habit.id === selectedHabitId);
-
-  const deletingHabit =
-    activeModal !== "delete" || selectedHabitId === null
-      ? undefined
-      : habits.find((habit) => habit.id === selectedHabitId);
 
   return (
     <main className="min-h-screen bg-indigo-100 px-4 py-5 text-stone-950 sm:px-6 lg:px-8">
@@ -168,11 +153,6 @@ export function Home() {
           <CreateHabitModal categories={categories} />
         )}
 
-        {editingHabit && !categoriesLoading && !categoriesError && (
-          <EditHabitModal habit={editingHabit} categories={categories} />
-        )}
-
-        {deletingHabit && <DeleteHabitModal habit={deletingHabit} />}
       </div>
     </main>
   );

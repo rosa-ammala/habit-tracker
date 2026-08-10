@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useAppDispatch } from "../app/hooks";
-import { closeModal } from "../features/ui/uiSlice";
-import { useCreateHabitMutation } from "../features/habits/habitsApi";
-import type { Category } from "../types/category";
-import { getApiErrorMessage } from "../utils/apiError";
+import { useAppDispatch } from "../../app/hooks";
+import { closeModal } from "../../features/ui/uiSlice";
+import { useCreateHabitMutation } from "../../features/habits/habitsApi";
+import type { Category } from "../../types/category";
+import { getApiErrorMessage } from "../../utils/apiError";
 import { HabitFormModal } from "./HabitFormModal";
 
 type Props = {

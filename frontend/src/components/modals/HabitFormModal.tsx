@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
-import type { Category } from "../types/category";
-import { CategoryButton } from "./buttons/CategoryButton";
+import type { Category } from "../../types/category";
+import { CategoryButton } from "../buttons/CategoryButton";
 import { Modal } from "./Modal";
 
 type Props = {

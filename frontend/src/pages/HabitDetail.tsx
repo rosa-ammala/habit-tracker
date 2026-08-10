@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { DeleteHabitModal } from "../components/DeleteHabitModal";
+import { DeleteHabitModal } from "../components/modals/DeleteHabitModal";
 import { DayCell } from "../components/DayCell";
-import { EditHabitModal } from "../components/EditHabitModal";
+import { EditHabitModal } from "../components/modals/EditHabitModal";
 import { IconButton } from "../components/buttons/IconButton";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
 import { useGetHabitByIdQuery } from "../features/habits/habitsApi";

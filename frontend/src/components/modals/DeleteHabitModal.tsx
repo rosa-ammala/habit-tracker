@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useAppDispatch } from "../app/hooks";
-import { useDeleteHabitMutation } from "../features/habits/habitsApi";
-import { closeModal } from "../features/ui/uiSlice";
-import type { Habit } from "../types/habit";
-import { getApiErrorMessage } from "../utils/apiError";
+import { useAppDispatch } from "../../app/hooks";
+import { useDeleteHabitMutation } from "../../features/habits/habitsApi";
+import { closeModal } from "../../features/ui/uiSlice";
+import type { Habit } from "../../types/habit";
+import { getApiErrorMessage } from "../../utils/apiError";
 import { Modal } from "./Modal";
 
 type Props = {

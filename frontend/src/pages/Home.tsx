@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { CategoryFilter } from "../components/CategoryFilter";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
 import { useGetHabitsQuery } from "../features/habits/habitsApi";
-import { CreateHabitModal } from "../components/CreateHabitModal";
+import { CreateHabitModal } from "../components/modals/CreateHabitModal";
 import {
   openCreateHabitModal,
   setSelectedCategoryId,

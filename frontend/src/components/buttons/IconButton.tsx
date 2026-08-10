@@ -4,7 +4,6 @@ type BaseProps = {
   icon: string;
   title: string;
   showTitle?: boolean;
-  disabled?: boolean;
   variant?: "default" | "primary" | "danger";
   tooltip?: string;
   className?: string;
@@ -13,6 +12,7 @@ type BaseProps = {
 type ButtonProps = BaseProps & {
   as?: "button";
   onClick: () => void;
+  disabled?: boolean;
 };
 
 type LinkProps = BaseProps & {

@@ -160,7 +160,7 @@ Current limitations and areas under improvement:
 
 - The app does not yet include user accounts or authentication
 - Categories are seeded by the backend instead of being managed through the UI
-- Habit data is currently fetched as full habit history instead of date-range based API queries
+- Habit logs are currently fetched as full history instead of year-based API queries
 - Form validation and error handling are intentionally lightweight for the MVP
 
 ## 💡 Future Development
@@ -172,5 +172,5 @@ Potential future improvements and development ideas:
 - Category management in the UI
 - Habit schedules and habit goals
 - Analytics and insights, such as trends and completion rates over time
-- Date-range based habit queries for larger log histories
+- Year-based habit log queries for larger log histories
 - Continued mobile UX and accessibility improvements

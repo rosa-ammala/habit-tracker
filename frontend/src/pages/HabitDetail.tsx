@@ -40,7 +40,9 @@ export function HabitDetail() {
     isLoading: categoriesLoading,
     isError: categoriesError,
     error: categoriesQueryError,
-  } = useGetCategoriesQuery();
+  } = useGetCategoriesQuery(undefined, {
+    skip: !Number.isInteger(habitId),
+  });
 
   const {
     data: habit,

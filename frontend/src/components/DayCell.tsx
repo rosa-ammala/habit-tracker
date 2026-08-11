@@ -90,7 +90,7 @@ export function DayCell({
         "flex shrink-0 items-center justify-center rounded-lg text-xs font-semibold ring-1",
         size === "sm" ? "h-7 w-7" : "h-8 w-8 min-h-[32px] min-w-[32px]",
         visualChecked
-          ? "bg-indigo-400 text-white ring-indigo-400 shadow-sm shadow-indigo-500/20"
+          ? "bg-indigo-600 text-white ring-indigo-600 shadow-sm shadow-indigo-500/20"
           : "bg-white text-stone-700 ring-stone-200",
         isToday && !visualChecked ? "ring-2 ring-amber-500" : "",
         isDimmed ? "opacity-35" : "",

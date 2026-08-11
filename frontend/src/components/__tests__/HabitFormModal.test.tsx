@@ -67,6 +67,108 @@ describe("HabitFormModal", () => {
     });
   });
 
+  it("closes when the backdrop is clicked without form changes", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const { container } = render(
+      <HabitFormModal
+        title="Add habit"
+        submitLabel="Create"
+        categories={categories}
+        isLoading={false}
+        onClose={onClose}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    await user.click(container.firstChild as HTMLElement);
+
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("does not close from the backdrop after changing the title", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const { container } = render(
+      <HabitFormModal
+        title="Add habit"
+        submitLabel="Create"
+        categories={categories}
+        isLoading={false}
+        onClose={onClose}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    await user.type(screen.getByLabelText("Habit title"), "Read");
+    await user.click(container.firstChild as HTMLElement);
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("allows backdrop close when title only changes by outer whitespace", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const { container } = render(
+      <HabitFormModal
+        title="Edit habit"
+        submitLabel="Save"
+        categories={categories}
+        initialTitle="Read"
+        initialCategoryId={1}
+        isLoading={false}
+        onClose={onClose}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    await user.type(screen.getByLabelText("Habit title"), " ");
+    await user.click(container.firstChild as HTMLElement);
+
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it("does not close from the backdrop after changing the category", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    const { container } = render(
+      <HabitFormModal
+        title="Add habit"
+        submitLabel="Create"
+        categories={categories}
+        isLoading={false}
+        onClose={onClose}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: "Learning" }));
+    await user.click(container.firstChild as HTMLElement);
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("allows cancel after form changes", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    render(
+      <HabitFormModal
+        title="Add habit"
+        submitLabel="Create"
+        categories={categories}
+        isLoading={false}
+        onClose={onClose}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    await user.type(screen.getByLabelText("Habit title"), "Read");
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
   it("does not close or submit while loading", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

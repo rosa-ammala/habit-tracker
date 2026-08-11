@@ -34,8 +34,14 @@ export function HabitFormModal({
     initialCategoryId ?? null
   );
 
+  const trimmedHabitTitle = habitTitle.trim();
+  const initialCategoryValue = initialCategoryId ?? null;
+  const hasUnsavedChanges =
+    trimmedHabitTitle !== initialTitle.trim() ||
+    categoryId !== initialCategoryValue;
+
   const canSubmit =
-    habitTitle.trim().length > 0 && categoryId !== null && !isLoading;
+    trimmedHabitTitle.length > 0 && categoryId !== null && !isLoading;
 
   function handleClose() {
     if (isLoading) {
@@ -51,13 +57,17 @@ export function HabitFormModal({
     }
 
     await onSubmit({
-      title: habitTitle.trim(),
+      title: trimmedHabitTitle,
       categoryId,
     });
   }
 
   return (
-    <Modal title={title} isCloseDisabled={isLoading} onClose={handleClose}>
+    <Modal
+      title={title}
+      isCloseDisabled={isLoading || hasUnsavedChanges}
+      onClose={handleClose}
+    >
       <form
         onSubmit={(event) => {
           event.preventDefault();

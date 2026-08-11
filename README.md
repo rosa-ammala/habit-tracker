@@ -13,7 +13,7 @@
 ![](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
 ![](https://custom-icon-badges.demolab.com/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 
-<img src ="img/habit-tracker.png" width="80%">
+<img src ="img/home-page-week-view.png" width="80%">
 
 </div>
 

@@ -30,7 +30,7 @@ const uiSlice = createSlice({
     setSelectedView(state, action: PayloadAction<View>) {
       state.selectedView = action.payload;
       state.selectedDate = normalizeDateForView(
-        state.selectedDate,
+        getTodayDateOnly(),
         action.payload
       );
     },

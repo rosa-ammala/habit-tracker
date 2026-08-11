@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import uiReducer, {
   closeModal,
   openCreateHabitModal,
@@ -7,13 +7,23 @@ import uiReducer, {
   setSelectedDate,
   setSelectedView,
 } from "../uiSlice";
+import * as dateUtils from "../../../utils/date";
+
+vi.mock("../../../utils/date", async () => {
+  const actual = await vi.importActual<typeof dateUtils>("../../../utils/date");
+
+  return {
+    ...actual,
+    getTodayDateOnly: vi.fn(() => "2026-06-10"),
+  };
+});
 
 describe("uiSlice", () => {
-  it("normalizes selected date when the view changes", () => {
+  it("returns to the current date when the view changes", () => {
     const state = uiReducer(
       {
         selectedView: "day",
-        selectedDate: "2026-06-10",
+        selectedDate: "2026-05-20",
         activeModal: null,
         selectedHabitId: null,
       },

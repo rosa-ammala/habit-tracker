@@ -94,7 +94,7 @@ To get a local copy of this project up and running, follow these steps.
    npm install
    ```
 
-3. **Set up environment variables:**
+3. **Set up the database:**
 
   - Make sure MySQL is running locally
   - Create a new database called 'habits_db'
@@ -150,9 +150,36 @@ To get a local copy of this project up and running, follow these steps.
 
 ### ✔ Running the Application
 
-- **Development mode:** `npm run dev`
+Run the backend and frontend development servers in separate terminals:
+
+```bash
+cd backend
+npm run dev
+```
+
+```bash
+cd frontend
+npm run dev
+```
 
 > Open [http://localhost:5173](http://localhost:5173) to view the app in your browser.
+
+### ✔ Running Tests
+
+Frontend:
+
+```bash
+cd frontend
+npm run test:run
+npm run test:e2e
+```
+
+Backend:
+
+```bash
+cd backend
+npm test
+```
 
 ## 🐛 Issues
 

@@ -3,6 +3,7 @@ import { useAppSelector } from "../app/hooks";
 import { useToggleHabitLog } from "../features/habits/useToggleHabitLog";
 import type { Habit } from "../types/habit";
 import {
+  WEEK_DAYS,
   getDatesForView,
   getTodayDateOnly,
   isDateInFuture,
@@ -13,8 +14,6 @@ import { DayCell } from "./DayCell";
 type Props = {
   habits: Habit[];
 };
-
-const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function HabitList({ habits }: Props) {
   const today = getTodayDateOnly();
@@ -92,7 +91,7 @@ export function HabitList({ habits }: Props) {
                 <div className="min-w-0 pb-1">
                   {(selectedView === "week" || selectedView === "month") && (
                     <div className="mb-2 grid grid-cols-7 justify-items-center gap-2 text-center text-xs font-medium text-stone-500">
-                      {weekDays.map((day) => (
+                      {WEEK_DAYS.map((day) => (
                         <div key={day}>{day}</div>
                       ))}
                     </div>

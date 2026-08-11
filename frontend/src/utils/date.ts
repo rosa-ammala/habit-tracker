@@ -3,6 +3,8 @@ import { getUserTimezone } from "./timezone";
 
 export const DATE_ONLY_LOCALE = "en-CA"; // Use "en-CA" for ISO 8601 date format (YYYY-MM-DD)
 export const DISPLAY_DATE_LOCALE = "en-GB"; // Use "en-GB" for display date format (DD/MM/YYYY)
+export const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+export const MONTH_INDICES = Array.from({ length: 12 }, (_, index) => index);
 
 export function getTodayDateOnly() {
   const formatter = new Intl.DateTimeFormat(DATE_ONLY_LOCALE, {

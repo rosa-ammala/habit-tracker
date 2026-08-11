@@ -14,15 +14,14 @@ import {
 } from "../features/ui/uiSlice";
 import {
   DISPLAY_DATE_LOCALE,
+  MONTH_INDICES,
+  WEEK_DAYS,
   getDatesForView,
   getTodayDateOnly,
   isDateInFuture,
   isSameMonth,
 } from "../utils/date";
 import { getApiErrorMessage } from "../utils/apiError";
-
-const months = Array.from({ length: 12 }, (_, index) => index);
-const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function HabitDetail() {
   const dispatch = useAppDispatch();
@@ -229,7 +228,7 @@ export function HabitDetail() {
           )}
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {months.map((month) => {
+            {MONTH_INDICES.map((month) => {
               const monthDate = `${visibleYear}-${String(month + 1).padStart(2, "0")}-01`;
               const {
                 dates,
@@ -252,7 +251,7 @@ export function HabitDetail() {
                   </h3>
 
                   <div className="mb-2 grid grid-cols-7 justify-items-center gap-2 text-center text-xs font-medium text-stone-500">
-                    {weekDays.map((day) => (
+                    {WEEK_DAYS.map((day) => (
                       <div key={day}>{day}</div>
                     ))}
                   </div>

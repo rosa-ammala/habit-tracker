@@ -18,12 +18,7 @@ type DeleteHabitRequest = {
   habitId: number;
 };
 
-type AddHabitLogRequest = {
-  habitId: number;
-  date: string;
-};
-
-type DeleteHabitLogRequest = {
+type HabitLogRequest = {
   habitId: number;
   date: string;
 };
@@ -96,7 +91,7 @@ export const habitsApi = apiSlice.injectEndpoints({
       ],
     }),
 
-    addHabitLog: builder.mutation<Habit, AddHabitLogRequest>({
+    addHabitLog: builder.mutation<Habit, HabitLogRequest>({
       query: ({ habitId, date }) => ({
         url: `/habits/${habitId}/logs`,
         method: "POST",
@@ -129,7 +124,7 @@ export const habitsApi = apiSlice.injectEndpoints({
       },
     }),
 
-    deleteHabitLog: builder.mutation<Habit, DeleteHabitLogRequest>({
+    deleteHabitLog: builder.mutation<Habit, HabitLogRequest>({
       query: ({ habitId, date }) => ({
         url: `/habits/${habitId}/logs/${date}`,
         method: "DELETE",

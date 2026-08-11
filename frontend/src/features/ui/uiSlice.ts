@@ -10,7 +10,6 @@ type ActiveModal = "create" | "edit" | "delete" | null;
 type UiState = {
   selectedView: View;
   selectedDate: string;
-  selectedCategoryId: number | null;
   activeModal: ActiveModal;
   selectedHabitId: number | null;
 };
@@ -20,7 +19,6 @@ const initialView: View = "week";
 const initialState: UiState = {
   selectedView: initialView,
   selectedDate: normalizeDateForView(getTodayDateOnly(), initialView),
-  selectedCategoryId: null,
   activeModal: null,
   selectedHabitId: null,
 };
@@ -41,9 +39,6 @@ const uiSlice = createSlice({
         action.payload,
         state.selectedView
       );
-    },
-    setSelectedCategoryId(state, action: PayloadAction<number | null>) {
-      state.selectedCategoryId = action.payload;
     },
     openCreateHabitModal(state) {
       state.activeModal = "create";
@@ -67,7 +62,6 @@ const uiSlice = createSlice({
 export const {
   setSelectedView,
   setSelectedDate,
-  setSelectedCategoryId,
   openCreateHabitModal,
   openEditHabitModal,
   openDeleteHabitModal,

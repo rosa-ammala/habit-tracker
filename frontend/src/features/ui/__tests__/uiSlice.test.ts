@@ -4,7 +4,6 @@ import uiReducer, {
   openCreateHabitModal,
   openDeleteHabitModal,
   openEditHabitModal,
-  setSelectedCategoryId,
   setSelectedDate,
   setSelectedView,
 } from "../uiSlice";
@@ -15,7 +14,6 @@ describe("uiSlice", () => {
       {
         selectedView: "day",
         selectedDate: "2026-06-10",
-        selectedCategoryId: null,
         activeModal: null,
         selectedHabitId: null,
       },
@@ -31,7 +29,6 @@ describe("uiSlice", () => {
       {
         selectedView: "month",
         selectedDate: "2026-05-01",
-        selectedCategoryId: null,
         activeModal: null,
         selectedHabitId: null,
       },
@@ -39,14 +36,6 @@ describe("uiSlice", () => {
     );
 
     expect(state.selectedDate).toBe("2026-06-01");
-  });
-
-  it("stores the selected category", () => {
-    const selectedState = uiReducer(undefined, setSelectedCategoryId(2));
-    expect(selectedState.selectedCategoryId).toBe(2);
-
-    const clearedState = uiReducer(selectedState, setSelectedCategoryId(null));
-    expect(clearedState.selectedCategoryId).toBeNull();
   });
 
   it("opens and closes the create habit modal", () => {

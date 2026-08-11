@@ -63,7 +63,6 @@ function renderHome() {
       ui: {
         selectedView: "day",
         selectedDate: "2026-06-08",
-        selectedCategoryId: null,
         activeModal: null,
         selectedHabitId: null,
       },

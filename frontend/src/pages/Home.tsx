@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { HabitList } from "../components/HabitList";
 import { ViewSwitch } from "../components/ViewSwitch";
 import { DateNavigation } from "../components/DateNavigation";
@@ -9,7 +10,6 @@ import { useGetHabitsQuery } from "../features/habits/habitsApi";
 import { CreateHabitModal } from "../components/modals/CreateHabitModal";
 import {
   openCreateHabitModal,
-  setSelectedCategoryId,
   setSelectedDate,
   setSelectedView,
 } from "../features/ui/uiSlice";
@@ -18,6 +18,9 @@ import { getApiErrorMessage } from "../utils/apiError";
 
 export function Home() {
   const dispatch = useAppDispatch();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null
+  );
 
   const {
     data: categories = [],
@@ -33,7 +36,6 @@ export function Home() {
     error: habitsQueryError,
   } = useGetHabitsQuery();
 
-  const selectedCategoryId = useAppSelector((state) => state.ui.selectedCategoryId);
   const selectedDate = useAppSelector((state) => state.ui.selectedDate);
   const selectedView = useAppSelector((state) => state.ui.selectedView);
   const activeModal = useAppSelector((state) => state.ui.activeModal);
@@ -117,9 +119,7 @@ export function Home() {
           <CategoryFilter
             categories={categories}
             selectedCategoryId={selectedCategoryId}
-            onSelectedCategoryChange={(categoryId) =>
-              dispatch(setSelectedCategoryId(categoryId))
-            }
+            onSelectedCategoryChange={setSelectedCategoryId}
           />
         )}
 

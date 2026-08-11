@@ -15,6 +15,8 @@ type Props = {
   onSubmit: (data: { title: string; categoryId: number }) => Promise<void>;
 };
 
+const MAX_HABIT_TITLE_LENGTH = 80;
+
 export function HabitFormModal({
   title,
   submitLabel,
@@ -43,9 +45,7 @@ export function HabitFormModal({
     onClose();
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function handleSubmit() {
     if (!canSubmit) {
       return;
     }
@@ -58,7 +58,13 @@ export function HabitFormModal({
 
   return (
     <Modal title={title} isCloseDisabled={isLoading} onClose={handleClose}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleSubmit();
+        }}
+        className="space-y-4"
+      >
         <div>
           <label
             htmlFor={titleInputId}
@@ -69,6 +75,7 @@ export function HabitFormModal({
           <input
             id={titleInputId}
             value={habitTitle}
+            maxLength={MAX_HABIT_TITLE_LENGTH}
             onChange={(event) => setHabitTitle(event.target.value)}
             className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none focus:border-indigo-400 focus:ring-3 focus:ring-indigo-100"
           />

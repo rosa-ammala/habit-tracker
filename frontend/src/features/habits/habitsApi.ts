@@ -85,10 +85,7 @@ export const habitsApi = apiSlice.injectEndpoints({
         url: `/habits/${habitId}`,
         method: "DELETE",
       }),
-      invalidatesTags: (_result, _error, { habitId }) => [
-        "Habits",
-        { type: "Habit", id: habitId },
-      ],
+      invalidatesTags: ["Habits"],
     }),
 
     addHabitLog: builder.mutation<Habit, HabitLogRequest>({

@@ -18,6 +18,13 @@ const validationMessages: Record<string, string> = {
   TITLE_TOO_LONG: "Title must be 80 characters or fewer",
 };
 
+const requiredCodesByPathKey: Record<string, string> = {
+  categoryId: "INVALID_CATEGORY_ID",
+  date: "DATE_REQUIRED",
+  timezone: "TIMEZONE_REQUIRED",
+  title: "TITLE_REQUIRED",
+};
+
 export function parseRequest<TSchema extends BaseSchema<unknown, unknown, BaseIssue<unknown>>>(
   schema: TSchema,
   input: unknown
@@ -28,7 +35,7 @@ export function parseRequest<TSchema extends BaseSchema<unknown, unknown, BaseIs
     return result.output;
   }
 
-  const validationMessage = getValidationMessage(result.issues[0].message);
+  const validationMessage = getValidationMessage(result.issues[0]);
 
   throw new AppError(
     400,
@@ -37,7 +44,18 @@ export function parseRequest<TSchema extends BaseSchema<unknown, unknown, BaseIs
   );
 }
 
-function getValidationMessage(issueMessage: unknown): ValidationMessage {
+function getValidationMessage(issue: BaseIssue<unknown>): ValidationMessage {
+  const missingFieldCode = getMissingFieldCode(issue);
+
+  if (missingFieldCode) {
+    return {
+      code: missingFieldCode,
+      message: validationMessages[missingFieldCode],
+    };
+  }
+
+  const issueMessage = issue.message;
+
   if (
     typeof issueMessage === "string" &&
     issueMessage in validationMessages
@@ -52,4 +70,18 @@ function getValidationMessage(issueMessage: unknown): ValidationMessage {
     code: "VALIDATION_ERROR",
     message: "Invalid request",
   };
+}
+
+function getMissingFieldCode(issue: BaseIssue<unknown>) {
+  const pathKey = issue.path?.at(-1)?.key;
+
+  if (
+    typeof pathKey === "string" &&
+    pathKey in requiredCodesByPathKey &&
+    issue.input === undefined
+  ) {
+    return requiredCodesByPathKey[pathKey];
+  }
+
+  return null;
 }

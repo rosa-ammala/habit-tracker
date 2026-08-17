@@ -10,6 +10,7 @@ import {
   isSameMonth,
 } from "../utils/date";
 import { DayCell } from "./DayCell";
+import { ErrorBanner } from "./ErrorBanner";
 
 type Props = {
   habits: Habit[];
@@ -37,9 +38,9 @@ export function HabitList({ habits }: Props) {
   return (
     <>
       {logErrorMessage && (
-        <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
-          {logErrorMessage}
-        </p>
+        <div className="mb-3">
+          <ErrorBanner message={logErrorMessage} />
+        </div>
       )}
 
       <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">

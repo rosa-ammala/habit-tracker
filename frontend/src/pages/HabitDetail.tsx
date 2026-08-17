@@ -227,9 +227,9 @@ export function HabitDetail() {
           </div>
 
           {logErrorMessage && (
-            <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
-              {logErrorMessage}
-            </p>
+            <div className="mb-4">
+              <ErrorBanner message={logErrorMessage} />
+            </div>
           )}
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

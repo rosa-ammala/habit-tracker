@@ -21,14 +21,16 @@ const baseHabit = {
   title: "Morning walk",
   categoryId: 1,
   category: categories[0],
-  logs: [
-    {
-      id: 10,
-      habitId: 1,
-      date: testDates.weekStart,
-    },
-  ],
-  currentStreak: 1,
+  logs: testDates.initialLogDate
+    ? [
+        {
+          id: 10,
+          habitId: 1,
+          date: testDates.initialLogDate,
+        },
+      ]
+    : [],
+  currentStreak: testDates.completedWeekDays,
   bestStreak: 3,
   createdAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-01T00:00:00.000Z",
@@ -114,7 +116,9 @@ test("loads the habit dashboard", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Health" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Morning walk" })).toBeVisible();
   await expect(
-    page.getByText(`1 of ${testDates.eligibleWeekDays} habit-days completed`)
+    page.getByText(
+      `${testDates.completedWeekDays} of ${testDates.eligibleWeekDays} habit-days completed`
+    )
   ).toBeVisible();
 });
 
@@ -160,16 +164,20 @@ function getCurrentWeekTestDates() {
   const weekStartDate = getStartOfWeek(today);
   const todayDateOnly = toDateOnly(today);
   const weekStart = toDateOnly(weekStartDate);
-  const toggleDate = toDateOnly(addDays(weekStartDate, 1));
+  const initialLogDate = weekStart === todayDateOnly ? null : weekStart;
+  const toggleDate = todayDateOnly;
   const eligibleWeekDays = Math.min(
     7,
     differenceInDays(weekStartDate, parseDateOnly(todayDateOnly)) + 1
   );
+  const completedWeekDays = initialLogDate ? 1 : 0;
 
   return {
     weekStart,
+    initialLogDate,
     toggleDate,
     eligibleWeekDays,
+    completedWeekDays,
   };
 }
 

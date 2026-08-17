@@ -178,6 +178,8 @@ Backend:
 
 ```bash
 cd backend
+cp .env.test.example .env.test
+npm run test:db:migrate
 npm test
 ```
 

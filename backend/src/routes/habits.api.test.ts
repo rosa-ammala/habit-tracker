@@ -136,6 +136,17 @@ describe("habits API", () => {
     });
   });
 
+  it("returns 400 when fetching a habit with invalid timezone", async () => {
+    const response = await request(app)
+      .get("/api/habits/1?timezone=Invalid/Timezone")
+      .expect(400);
+
+    expect(response.body).toEqual({
+      code: "INVALID_TIMEZONE",
+      message: "Invalid timezone",
+    });
+  });
+
   it("adds a habit log and returns updated streaks", async () => {
     const today = getTodayInTimezone("Europe/Helsinki");
     const yesterday = addDays(today, -1);
@@ -174,6 +185,21 @@ describe("habits API", () => {
     expect(response.body.logs[1].date).toBe(today);
     expect(response.body.currentStreak).toBe(2);
     expect(response.body.bestStreak).toBe(2);
+  });
+
+  it("returns 400 when adding a habit log with invalid timezone", async () => {
+    const response = await request(app)
+      .post("/api/habits/1/logs")
+      .send({
+        date: "2026-06-10",
+        timezone: "Invalid/Timezone",
+      })
+      .expect(400);
+
+    expect(response.body).toEqual({
+      code: "INVALID_TIMEZONE",
+      message: "Invalid timezone",
+    });
   });
 
   it("returns 409 when adding duplicate log", async () => {
@@ -243,5 +269,16 @@ describe("habits API", () => {
     expect(response.body.logs).toHaveLength(0);
     expect(response.body.currentStreak).toBe(0);
     expect(response.body.bestStreak).toBe(0);
+  });
+
+  it("returns 400 when deleting a habit log with invalid timezone", async () => {
+    const response = await request(app)
+      .delete("/api/habits/1/logs/2026-06-10?timezone=Invalid/Timezone")
+      .expect(400);
+
+    expect(response.body).toEqual({
+      code: "INVALID_TIMEZONE",
+      message: "Invalid timezone",
+    });
   });
 });

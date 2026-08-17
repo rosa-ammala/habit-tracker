@@ -77,6 +77,21 @@ describe("habits API", () => {
     });
   });
 
+  it("returns 400 when creating a habit with too long title", async () => {
+    const response = await request(app)
+      .post("/api/habits")
+      .send({
+        title: "a".repeat(81),
+        categoryId: 1,
+      })
+      .expect(400);
+
+    expect(response.body).toEqual({
+      code: "TITLE_TOO_LONG",
+      message: "Title must be 80 characters or fewer",
+    });
+  });
+
   it("returns habits with categories", async () => {
     const category = await prisma.category.create({
       data: {
@@ -107,6 +122,17 @@ describe("habits API", () => {
       logs: [],
       currentStreak: 0,
       bestStreak: 0,
+    });
+  });
+
+  it("returns 400 when fetching habits with invalid timezone", async () => {
+    const response = await request(app)
+      .get("/api/habits?timezone=Invalid/Timezone")
+      .expect(400);
+
+    expect(response.body).toEqual({
+      code: "INVALID_TIMEZONE",
+      message: "Invalid timezone",
     });
   });
 

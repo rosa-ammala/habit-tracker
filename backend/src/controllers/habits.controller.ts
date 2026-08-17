@@ -1,12 +1,19 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
-import { AppError } from "../middleware/errors";
 import * as habitService from "../services/habit.service";
+import {
+  createHabitBodySchema,
+  habitIdParamsSchema,
+  habitLogBodySchema,
+  habitLogParamsSchema,
+  timezoneQuerySchema,
+  updateHabitBodySchema,
+} from "../validation/habits.validation";
+import { parseRequest } from "../validation/parseRequest";
 
 export const getHabits = asyncHandler(
   async (req: Request, res: Response) => {
-    const timezone =
-      typeof req.query.timezone === "string" ? req.query.timezone : "UTC";
+    const { timezone } = parseRequest(timezoneQuerySchema, req.query);
 
     const habits = await habitService.getHabits(timezone);
 
@@ -17,26 +24,9 @@ export const getHabits = asyncHandler(
 
 export const createHabit = asyncHandler(
   async (req: Request, res: Response) => {
-    const { title, categoryId } = req.body;
+    const body = parseRequest(createHabitBodySchema, req.body);
 
-    if (!title || typeof title !== "string") {
-      throw new AppError(400, "TITLE_REQUIRED", "Title is required");
-    }
-
-    const parsedCategoryId = Number(categoryId);
-
-    if (!Number.isInteger(parsedCategoryId)) {
-      throw new AppError(
-        400,
-        "INVALID_CATEGORY_ID",
-        "Valid categoryId is required"
-      );
-    }
-
-    const habit = await habitService.createHabit({
-      title: title.trim(),
-      categoryId: parsedCategoryId,
-    });
+    const habit = await habitService.createHabit(body);
 
     res.status(201).json(habit);
   },
@@ -45,14 +35,8 @@ export const createHabit = asyncHandler(
 
 export const getHabitById = asyncHandler(
   async (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-
-    if (!Number.isInteger(id)) {
-      throw new AppError(400, "INVALID_HABIT_ID", "Valid habit id is required");
-    }
-
-    const timezone =
-      typeof req.query.timezone === "string" ? req.query.timezone : "UTC";
+    const { id } = parseRequest(habitIdParamsSchema, req.params);
+    const { timezone } = parseRequest(timezoneQuerySchema, req.query);
 
     const habit = await habitService.getHabitById(id, timezone);
 
@@ -63,32 +47,10 @@ export const getHabitById = asyncHandler(
 
 export const updateHabit = asyncHandler(
   async (req: Request, res: Response) => {
-    const id = Number(req.params.id);
+    const { id } = parseRequest(habitIdParamsSchema, req.params);
+    const body = parseRequest(updateHabitBodySchema, req.body);
 
-    if (!Number.isInteger(id)) {
-      throw new AppError(400, "INVALID_HABIT_ID", "Valid habit id is required");
-    }
-
-    const { title, categoryId } = req.body;
-
-    if (!title || typeof title !== "string" || !title.trim()) {
-      throw new AppError(400, "TITLE_REQUIRED", "Title is required");
-    }
-
-    const parsedCategoryId = Number(categoryId);
-
-    if (!Number.isInteger(parsedCategoryId)) {
-      throw new AppError(
-        400,
-        "INVALID_CATEGORY_ID",
-        "Valid categoryId is required"
-      );
-    }
-
-    const habit = await habitService.updateHabit(id, {
-      title: title.trim(),
-      categoryId: parsedCategoryId,
-    });
+    const habit = await habitService.updateHabit(id, body);
 
     res.json(habit);
   },
@@ -97,11 +59,7 @@ export const updateHabit = asyncHandler(
 
 export const deleteHabit = asyncHandler(
   async (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-
-    if (!Number.isInteger(id)) {
-      throw new AppError(400, "INVALID_HABIT_ID", "Valid habit id is required");
-    }
+    const { id } = parseRequest(habitIdParamsSchema, req.params);
 
     await habitService.deleteHabit(id);
 
@@ -113,26 +71,10 @@ export const deleteHabit = asyncHandler(
 // LOGS
 export const addHabitLog = asyncHandler(
   async (req: Request, res: Response) => {
-    const id = Number(req.params.id);
+    const { id } = parseRequest(habitIdParamsSchema, req.params);
+    const body = parseRequest(habitLogBodySchema, req.body);
 
-    if (!Number.isInteger(id)) {
-      throw new AppError(400, "INVALID_HABIT_ID", "Valid habit id is required");
-    }
-
-    const { date, timezone } = req.body;
-
-    if (!date || typeof date !== "string") {
-      throw new AppError(400, "DATE_REQUIRED", "Date is required");
-    }
-
-    if (!timezone || typeof timezone !== "string") {
-      throw new AppError(400, "TIMEZONE_REQUIRED", "Timezone is required");
-    }
-
-    const habit = await habitService.addHabitLog(id, {
-      date,
-      timezone,
-    });
+    const habit = await habitService.addHabitLog(id, body);
 
     res.status(201).json(habit);
   },
@@ -141,19 +83,8 @@ export const addHabitLog = asyncHandler(
 
 export const deleteHabitLog = asyncHandler(
   async (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    const date = req.params.date;
-
-    if (!Number.isInteger(id)) {
-      throw new AppError(400, "INVALID_HABIT_ID", "Valid habit id is required");
-    }
-
-    if (typeof date !== "string") {
-      throw new AppError(400, "INVALID_DATE", "Valid date is required");
-    }
-
-    const timezone =
-      typeof req.query.timezone === "string" ? req.query.timezone : "UTC";
+    const { id, date } = parseRequest(habitLogParamsSchema, req.params);
+    const { timezone } = parseRequest(timezoneQuerySchema, req.query);
 
     const habit = await habitService.deleteHabitLog(id, date, timezone);
 

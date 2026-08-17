@@ -1,32 +1,32 @@
 import type { Request, Response } from "express";
+import { asyncHandler } from "../middleware/asyncHandler";
+import { AppError } from "../middleware/errors";
 import * as habitService from "../services/habit.service";
 
-export async function getHabits(req: Request, res: Response) {
-  try {
+export const getHabits = asyncHandler(
+  async (req: Request, res: Response) => {
     const timezone =
       typeof req.query.timezone === "string" ? req.query.timezone : "UTC";
 
     const habits = await habitService.getHabits(timezone);
 
     res.json(habits);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching habits" });
-  }
-}
+  },
+  "Error fetching habits"
+);
 
-export async function createHabit(req: Request, res: Response) {
-  try {
+export const createHabit = asyncHandler(
+  async (req: Request, res: Response) => {
     const { title, categoryId } = req.body;
 
     if (!title || typeof title !== "string") {
-      return res.status(400).json({ message: "Title is required" });
+      throw new AppError(400, "Title is required");
     }
 
     const parsedCategoryId = Number(categoryId);
 
     if (!Number.isInteger(parsedCategoryId)) {
-      return res.status(400).json({ message: "Valid categoryId is required" });
+      throw new AppError(400, "Valid categoryId is required");
     }
 
     const habit = await habitService.createHabit({
@@ -35,22 +35,16 @@ export async function createHabit(req: Request, res: Response) {
     });
 
     res.status(201).json(habit);
-  } catch (error) {
-    if (error instanceof Error && error.message === "CATEGORY_NOT_FOUND") {
-      return res.status(404).json({ message: "Category not found" });
-    }
+  },
+  "Error creating habit"
+);
 
-    console.error(error);
-    res.status(500).json({ message: "Error creating habit" });
-  }
-}
-
-export async function getHabitById(req: Request, res: Response) {
-  try {
+export const getHabitById = asyncHandler(
+  async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id)) {
-      return res.status(400).json({ message: "Valid habit id is required" });
+      throw new AppError(400, "Valid habit id is required");
     }
 
     const timezone =
@@ -59,34 +53,28 @@ export async function getHabitById(req: Request, res: Response) {
     const habit = await habitService.getHabitById(id, timezone);
 
     res.json(habit);
-  } catch (error) {
-    if (error instanceof Error && error.message === "HABIT_NOT_FOUND") {
-      return res.status(404).json({ message: "Habit not found" });
-    }
+  },
+  "Error fetching habit"
+);
 
-    console.error(error);
-    res.status(500).json({ message: "Error fetching habit" });
-  }
-}
-
-export async function updateHabit(req: Request, res: Response) {
-  try {
+export const updateHabit = asyncHandler(
+  async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id)) {
-      return res.status(400).json({ message: "Valid habit id is required" });
+      throw new AppError(400, "Valid habit id is required");
     }
 
     const { title, categoryId } = req.body;
 
     if (!title || typeof title !== "string" || !title.trim()) {
-      return res.status(400).json({ message: "Title is required" });
+      throw new AppError(400, "Title is required");
     }
 
     const parsedCategoryId = Number(categoryId);
 
     if (!Number.isInteger(parsedCategoryId)) {
-      return res.status(400).json({ message: "Valid categoryId is required" });
+      throw new AppError(400, "Valid categoryId is required");
     }
 
     const habit = await habitService.updateHabit(id, {
@@ -95,58 +83,42 @@ export async function updateHabit(req: Request, res: Response) {
     });
 
     res.json(habit);
-  } catch (error) {
-    if (error instanceof Error && error.message === "HABIT_NOT_FOUND") {
-      return res.status(404).json({ message: "Habit not found" });
-    }
+  },
+  "Error updating habit"
+);
 
-    if (error instanceof Error && error.message === "CATEGORY_NOT_FOUND") {
-      return res.status(404).json({ message: "Category not found" });
-    }
-
-    console.error(error);
-    res.status(500).json({ message: "Error updating habit" });
-  }
-}
-
-export async function deleteHabit(req: Request, res: Response) {
-  try {
+export const deleteHabit = asyncHandler(
+  async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id)) {
-      return res.status(400).json({ message: "Valid habit id is required" });
+      throw new AppError(400, "Valid habit id is required");
     }
 
     await habitService.deleteHabit(id);
 
     res.json({ message: "Habit deleted" });
-  } catch (error) {
-    if (error instanceof Error && error.message === "HABIT_NOT_FOUND") {
-      return res.status(404).json({ message: "Habit not found" });
-    }
-
-    console.error(error);
-    res.status(500).json({ message: "Error deleting habit" });
-  }
-}
+  },
+  "Error deleting habit"
+);
 
 // LOGS
-export async function addHabitLog(req: Request, res: Response) {
-  try {
+export const addHabitLog = asyncHandler(
+  async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
     if (!Number.isInteger(id)) {
-      return res.status(400).json({ message: "Valid habit id is required" });
+      throw new AppError(400, "Valid habit id is required");
     }
 
     const { date, timezone } = req.body;
 
     if (!date || typeof date !== "string") {
-      return res.status(400).json({ message: "Date is required" });
+      throw new AppError(400, "Date is required");
     }
 
     if (!timezone || typeof timezone !== "string") {
-      return res.status(400).json({ message: "Timezone is required" });
+      throw new AppError(400, "Timezone is required");
     }
 
     const habit = await habitService.addHabitLog(id, {
@@ -155,44 +127,21 @@ export async function addHabitLog(req: Request, res: Response) {
     });
 
     res.status(201).json(habit);
-  } catch (error) {
-    if (error instanceof Error && error.message === "INVALID_DATE") {
-      return res.status(400).json({ message: "Invalid date" });
-    }
+  },
+  "Error adding habit log"
+);
 
-    if (error instanceof Error && error.message === "FUTURE_DATE_NOT_ALLOWED") {
-      return res.status(400).json({ message: "Cannot log future dates" });
-    }
-
-    if (error instanceof Error && error.message === "HABIT_NOT_FOUND") {
-      return res.status(404).json({ message: "Habit not found" });
-    }
-
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "P2002"
-    ) {
-      return res.status(409).json({ message: "Log already exists for this date" });
-    }
-
-    console.error(error);
-    res.status(500).json({ message: "Error adding habit log" });
-  }
-}
-
-export async function deleteHabitLog(req: Request, res: Response) {
-  try {
+export const deleteHabitLog = asyncHandler(
+  async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     const date = req.params.date;
 
     if (!Number.isInteger(id)) {
-      return res.status(400).json({ message: "Valid habit id is required" });
+      throw new AppError(400, "Valid habit id is required");
     }
 
     if (typeof date !== "string") {
-      return res.status(400).json({ message: "Valid date is required" });
+      throw new AppError(400, "Valid date is required");
     }
 
     const timezone =
@@ -201,25 +150,6 @@ export async function deleteHabitLog(req: Request, res: Response) {
     const habit = await habitService.deleteHabitLog(id, date, timezone);
 
     res.json(habit);
-  } catch (error) {
-    if (error instanceof Error && error.message === "INVALID_DATE") {
-      return res.status(400).json({ message: "Invalid date" });
-    }
-
-    if (error instanceof Error && error.message === "HABIT_NOT_FOUND") {
-      return res.status(404).json({ message: "Habit not found" });
-    }
-
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "P2025"
-    ) {
-      return res.status(404).json({ message: "Log not found" });
-    }
-
-    console.error(error);
-    res.status(500).json({ message: "Error deleting habit log" });
-  }
-}
+  },
+  "Error deleting habit log"
+);

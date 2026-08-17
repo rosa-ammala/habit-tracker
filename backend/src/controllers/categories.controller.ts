@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
 import { prisma } from "../config/prisma";
+import { asyncHandler } from "../middleware/asyncHandler";
 
-export async function getCategories(_req: Request, res: Response) {
-  try {
+export const getCategories = asyncHandler(
+  async (_req: Request, res: Response) => {
     const categories = await prisma.category.findMany({
       orderBy: {
         name: "asc",
@@ -10,8 +11,6 @@ export async function getCategories(_req: Request, res: Response) {
     });
 
     res.json(categories);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching categories" });
-  }
-}
+  },
+  "Error fetching categories"
+);

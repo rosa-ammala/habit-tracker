@@ -45,22 +45,30 @@ export function toAppError(error: unknown, fallbackMessage: string) {
     return new AppError(404, "LOG_NOT_FOUND", "Log not found");
   }
 
+  if (isHttpErrorType(error, "entity.too.large")) {
+    return new AppError(413, "PAYLOAD_TOO_LARGE", "Request body is too large");
+  }
+
+  if (isHttpErrorType(error, "entity.parse.failed")) {
+    return new AppError(400, "INVALID_JSON", "Invalid JSON body");
+  }
+
   return new AppError(500, "INTERNAL_ERROR", fallbackMessage);
 }
 
 export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
-  if (!(error instanceof AppError) || error.statusCode >= 500) {
+  const appError = toAppError(error, "Internal server error");
+
+  if (appError.statusCode >= 500) {
     console.error(error);
   }
 
   const response: ErrorResponse = {
-    code: error instanceof AppError ? error.code : "INTERNAL_ERROR",
-    message: error instanceof AppError ? error.message : "Internal server error",
+    code: appError.code,
+    message: appError.message,
   };
 
-  res
-    .status(error instanceof AppError ? error.statusCode : 500)
-    .json(response);
+  res.status(appError.statusCode).json(response);
 };
 
 const serviceErrorMap: Record<
@@ -95,5 +103,14 @@ function isPrismaErrorCode(error: unknown, code: string) {
     error !== null &&
     "code" in error &&
     error.code === code
+  );
+}
+
+function isHttpErrorType(error: unknown, type: string) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "type" in error &&
+    error.type === type
   );
 }

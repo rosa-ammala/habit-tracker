@@ -67,6 +67,54 @@ describe("HabitFormModal", () => {
     });
   });
 
+  it("shows title validation help and character count", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <HabitFormModal
+        title="Add habit"
+        submitLabel="Create"
+        categories={categories}
+        isLoading={false}
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByText("Use a clear title for this habit.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("0/80")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Habit title"), "   ");
+
+    expect(screen.getByText("Enter a habit title.")).toBeInTheDocument();
+    expect(screen.getByText("3/80")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Create" })).toBeDisabled();
+  });
+
+  it("notifies when form fields change", async () => {
+    const user = userEvent.setup();
+    const onFormChange = vi.fn();
+
+    render(
+      <HabitFormModal
+        title="Add habit"
+        submitLabel="Create"
+        categories={categories}
+        isLoading={false}
+        onClose={vi.fn()}
+        onFormChange={onFormChange}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    await user.type(screen.getByLabelText("Habit title"), "Read");
+    await user.click(screen.getByRole("button", { name: "Learning" }));
+
+    expect(onFormChange).toHaveBeenCalled();
+  });
+
   it("closes when the backdrop is clicked without form changes", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

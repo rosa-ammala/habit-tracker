@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import type { Category } from "../../types/category";
 import { CategoryButton } from "../buttons/CategoryButton";
+import { ErrorBanner } from "../ErrorBanner";
 import { Modal } from "./Modal";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
   isLoading: boolean;
   errorMessage?: string | null;
   onClose: () => void;
+  onFormChange?: () => void;
   onSubmit: (data: { title: string; categoryId: number }) => Promise<void>;
 };
 
@@ -26,9 +28,11 @@ export function HabitFormModal({
   isLoading,
   errorMessage,
   onClose,
+  onFormChange,
   onSubmit,
 }: Props) {
   const titleInputId = useId();
+  const titleHelpId = useId();
   const [habitTitle, setHabitTitle] = useState(initialTitle);
   const [categoryId, setCategoryId] = useState<number | null>(
     initialCategoryId ?? null
@@ -42,6 +46,18 @@ export function HabitFormModal({
 
   const canSubmit =
     trimmedHabitTitle.length > 0 && categoryId !== null && !isLoading;
+  const isWhitespaceOnlyTitle =
+    habitTitle.length > 0 && trimmedHabitTitle.length === 0;
+
+  function handleTitleChange(nextTitle: string) {
+    setHabitTitle(nextTitle);
+    onFormChange?.();
+  }
+
+  function handleCategoryChange(nextCategoryId: number) {
+    setCategoryId(nextCategoryId);
+    onFormChange?.();
+  }
 
   function handleClose() {
     if (isLoading) {
@@ -86,9 +102,24 @@ export function HabitFormModal({
             id={titleInputId}
             value={habitTitle}
             maxLength={MAX_HABIT_TITLE_LENGTH}
-            onChange={(event) => setHabitTitle(event.target.value)}
+            aria-describedby={titleHelpId}
+            aria-invalid={isWhitespaceOnlyTitle}
+            onChange={(event) => handleTitleChange(event.target.value)}
             className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-950 outline-none focus:border-indigo-400 focus:ring-3 focus:ring-indigo-100"
           />
+          <div
+            id={titleHelpId}
+            className="mt-1.5 flex items-start justify-between gap-3 text-xs"
+          >
+            <p className={isWhitespaceOnlyTitle ? "text-red-700" : "text-stone-500"}>
+              {isWhitespaceOnlyTitle
+                ? "Enter a habit title."
+                : "Use a clear title for this habit."}
+            </p>
+            <p className="shrink-0 text-stone-500">
+              {habitTitle.length}/{MAX_HABIT_TITLE_LENGTH}
+            </p>
+          </div>
         </div>
 
         <div>
@@ -101,16 +132,14 @@ export function HabitFormModal({
                 key={category.id}
                 category={category}
                 isSelected={categoryId === category.id}
-                onClick={() => setCategoryId(category.id)}
+                onClick={() => handleCategoryChange(category.id)}
               />
             ))}
           </div>
         </div>
 
         {errorMessage && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
-            {errorMessage}
-          </p>
+          <ErrorBanner message={errorMessage} />
         )}
 
         <div className="flex justify-end gap-2 pt-1">

@@ -4,6 +4,7 @@ import { useDeleteHabitMutation } from "../../features/habits/habitsApi";
 import { closeModal } from "../../features/ui/uiSlice";
 import type { Habit } from "../../types/habit";
 import { getApiErrorMessage } from "../../utils/apiError";
+import { ErrorBanner } from "../ErrorBanner";
 import { Modal } from "./Modal";
 
 type Props = {
@@ -46,9 +47,9 @@ export function DeleteHabitModal({ habit, onDeleted }: Props) {
       </p>
 
       {errorMessage && (
-        <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 ring-1 ring-red-200">
-          {errorMessage}
-        </p>
+        <div className="mb-4">
+          <ErrorBanner message={errorMessage} />
+        </div>
       )}
 
       <div className="flex justify-end gap-2">

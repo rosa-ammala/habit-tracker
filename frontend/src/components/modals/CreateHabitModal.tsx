@@ -38,6 +38,7 @@ export function CreateHabitModal({ categories }: Props) {
       isLoading={isLoading}
       errorMessage={errorMessage}
       onClose={handleClose}
+      onFormChange={() => setErrorMessage(null)}
       onSubmit={handleSubmit}
     />
   );

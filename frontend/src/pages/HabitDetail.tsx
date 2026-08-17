@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { DeleteHabitModal } from "../components/modals/DeleteHabitModal";
 import { DayCell } from "../components/DayCell";
 import { EditHabitModal } from "../components/modals/EditHabitModal";
+import { ErrorBanner } from "../components/ErrorBanner";
 import { IconButton } from "../components/buttons/IconButton";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
 import { useGetHabitByIdQuery } from "../features/habits/habitsApi";
@@ -87,9 +88,11 @@ export function HabitDetail() {
           <Link to="/" className="text-sm font-semibold text-stone-700">
             Back
           </Link>
-          <p className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-            {getApiErrorMessage(error, "Could not load habit.")}
-          </p>
+          <div className="mt-6">
+            <ErrorBanner
+              message={getApiErrorMessage(error, "Could not load habit.")}
+            />
+          </div>
         </div>
       </main>
     );

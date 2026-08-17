@@ -8,6 +8,7 @@ import { CategoryFilter } from "../components/CategoryFilter";
 import { useGetCategoriesQuery } from "../features/categories/categoriesApi";
 import { useGetHabitsQuery } from "../features/habits/habitsApi";
 import { CreateHabitModal } from "../components/modals/CreateHabitModal";
+import { ErrorBanner } from "../components/ErrorBanner";
 import {
   openCreateHabitModal,
   setSelectedDate,
@@ -105,13 +106,13 @@ export function Home() {
         )}
 
         {categoriesError && (
-          <section className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 shadow-sm">
-            <p className="text-sm text-red-700">
-              {getApiErrorMessage(
+          <section className="mb-6">
+            <ErrorBanner
+              message={getApiErrorMessage(
                 categoriesQueryError,
                 "Could not load categories."
               )}
-            </p>
+            />
           </section>
         )}
 
@@ -139,9 +140,12 @@ export function Home() {
           )}
 
           {habitsError && (
-            <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200">
-              {getApiErrorMessage(habitsQueryError, "Could not load habits.")}
-            </p>
+            <ErrorBanner
+              message={getApiErrorMessage(
+                habitsQueryError,
+                "Could not load habits."
+              )}
+            />
           )}
 
           {!habitsLoading && !habitsError && (

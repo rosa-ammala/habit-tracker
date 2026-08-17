@@ -2,11 +2,22 @@ import request from "supertest";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import app from "../app";
 import { prisma } from "../config/prisma";
+import { getTodayInTimezone } from "../utils/date";
 
 async function cleanDatabase() {
   await prisma.habitLog.deleteMany();
   await prisma.habit.deleteMany();
   await prisma.category.deleteMany();
+}
+
+function toDateOnlyString(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function addDays(date: string, amount: number) {
+  const result = new Date(`${date}T00:00:00.000Z`);
+  result.setUTCDate(result.getUTCDate() + amount);
+  return toDateOnlyString(result);
 }
 
 describe("habits API", () => {
@@ -61,6 +72,7 @@ describe("habits API", () => {
       .expect(404);
 
     expect(response.body).toEqual({
+      code: "CATEGORY_NOT_FOUND",
       message: "Category not found",
     });
   });
@@ -99,6 +111,8 @@ describe("habits API", () => {
   });
 
   it("adds a habit log and returns updated streaks", async () => {
+    const today = getTodayInTimezone("Europe/Helsinki");
+    const yesterday = addDays(today, -1);
     const category = await prisma.category.create({
       data: {
         name: "Health",
@@ -116,7 +130,7 @@ describe("habits API", () => {
     await request(app)
       .post(`/api/habits/${habit.id}/logs`)
       .send({
-        date: "2026-06-09",
+        date: yesterday,
         timezone: "Europe/Helsinki",
       })
       .expect(201);
@@ -124,14 +138,14 @@ describe("habits API", () => {
     const response = await request(app)
       .post(`/api/habits/${habit.id}/logs`)
       .send({
-        date: "2026-06-10",
+        date: today,
         timezone: "Europe/Helsinki",
       })
       .expect(201);
 
     expect(response.body.logs).toHaveLength(2);
-    expect(response.body.logs[0].date).toBe("2026-06-09");
-    expect(response.body.logs[1].date).toBe("2026-06-10");
+    expect(response.body.logs[0].date).toBe(yesterday);
+    expect(response.body.logs[1].date).toBe(today);
     expect(response.body.currentStreak).toBe(2);
     expect(response.body.bestStreak).toBe(2);
   });
@@ -168,6 +182,7 @@ describe("habits API", () => {
       .expect(409);
 
     expect(response.body).toEqual({
+      code: "LOG_ALREADY_EXISTS",
       message: "Log already exists for this date",
     });
   });
